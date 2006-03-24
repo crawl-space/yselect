@@ -1,38 +1,53 @@
+"""
+Yselect program.
+"""
+
 import curses
 
-__version__ = "0.0.1"
-__program_name__ = "yselect"
+__revision__ = "$Rev$"
+
+version = "0.0.1"
+program_name = "yselect"
 
 class MainMenu:
+
+    """
+    yselect main menu screen.
+    """
+    
     def __init__(self):
         self.title = \
-            "RPM/Yum %s package handling frontend." % (__program_name__)
+            "RPM/Yum %s package handling frontend." % (program_name)
         
         self.entries = (
-            ("update", "[U]pdate", "Update list of available packages, if possible."),
-            ("select", "[S]elect", "Request which packages you want on your system."),
+            ("update", "[U]pdate",
+                "Update list of available packages, if possible."),
+            ("select", "[S]elect",
+                "Request which packages you want on your system."),
             ("install", "[I]nstall", "Install and upgrade wanted packages."),
-            ("quit", "[Q]uit", "Quit %s." % (__program_name__))
+            ("quit", "[Q]uit", "Quit %s." % (program_name))
         )
 
         self.navigation_info = \
-            "Move around with ^P and ^N, cursor keys, initial letters, or digits;\n" + \
+            "Move around with ^P and ^N, cursor keys, initial letters," + \
+            "or digits;\n" + \
             "Press <enter> to confirm selection.  ^L redraws screen."
         self.copyright = \
             "Version %s\n" + \
             "Copyright (C) 2006 Devan Goodwin and James Bowes\n" + \
-            "This is free software; see the GNU General Public Licence version 2\n" + \
+            "This is free software; see the GNU General Public Licence " + \
+            "version 2\n" + \
             "or later for copying conditions.  There is NO warrenty.  See\n" + \
             "%s --licence for details." 
             
-        self.copyright = self.copyright % (__version__, __program_name__)
+        self.copyright = self.copyright % (version, program_name)
       
         self.selected = "update"
       
-    def moveUp(self):
+    def move_up(self):
         pass
 
-    def moveDown(self):
+    def move_down(self):
         pass
 
     def select(self):
@@ -63,30 +78,39 @@ class MainMenu:
         x_pos = x_pos + 3 # The previous string was two lines
         window.addstr(x_pos, 0, self.copyright)
 
-# startup
-stdscr = curses.initscr()
 
-curses.noecho()
-curses.cbreak()
+def initialize_curses():
+    stdscr = curses.initscr()
 
-stdscr.keypad(True)
+    curses.noecho()
+    curses.cbreak()
 
-# end startup
-menu = MainMenu()
+    stdscr.keypad(True)
+    
+    return stdscr
 
-menu.paint(stdscr)
-stdscr.refresh()
+def terminate_curses(stdscr):
+    stdscr.keypad(False)
 
-while True:
-    c = stdscr.getch()
+    curses.nocbreak()
+    curses.echo()
+    curses.endwin()
 
-    if c == ord('q'):
-        break
+def main():
+    stdscr = initialize_curses()
 
-# shutdown
-stdscr.keypad(False)
+    menu = MainMenu()
 
-curses.nocbreak()
-curses.echo()
-curses.endwin()
-# end shutdown
+    menu.paint(stdscr)
+    stdscr.refresh()
+
+    while True:
+        char = stdscr.getch()
+
+        if char == ord('q'):
+            break
+
+    terminate_curses(stdscr)
+
+if __name__ == "__main__":
+    main()
