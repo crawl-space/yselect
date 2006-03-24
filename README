@@ -1,0 +1,6 @@
+This is yselect, a dselect work-alike for systems using yum and RPM for package
+management. You could also think of it as a program that makes fedora more
+comfortable for crusty old debian users.
+
+You're probably better off with yumex, pirut, or pup. But some habits are hard
+to break.
