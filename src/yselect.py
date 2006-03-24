@@ -1,5 +1,10 @@
 """
 Yselect program.
+
+This program is free software, released under the terms of the GPL.
+
+Copyright (C) 2006 James Bowes <jbowes@redhat.com>
+Copyright (C) 2006 Devan Goodwin <dg@fnordia.org>
 """
 
 import curses
@@ -80,6 +85,7 @@ class MainMenu:
 
 
 def initialize_curses():
+    """ Start up the curses UI. """
     stdscr = curses.initscr()
 
     curses.noecho()
@@ -90,6 +96,9 @@ def initialize_curses():
     return stdscr
 
 def terminate_curses(stdscr):
+    """ 
+    Shut down the curses UI. We set the console back to a nice condition.
+    """
     stdscr.keypad(False)
 
     curses.nocbreak()
@@ -97,6 +106,7 @@ def terminate_curses(stdscr):
     curses.endwin()
 
 def main():
+    """ Program main entry point. """
     stdscr = initialize_curses()
 
     menu = MainMenu()
