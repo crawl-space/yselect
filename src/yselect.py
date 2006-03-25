@@ -67,7 +67,7 @@ class MainMenu:
         pass
 
     def paint(self, window):
-        window.addstr(self.title, curses.A_BOLD)
+        window.addstr(0, 0, self.title, curses.A_BOLD)
 
         x_pos = 2
         for i in range(len(self.entries)):
