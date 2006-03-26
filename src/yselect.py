@@ -51,22 +51,30 @@ class MainMenu:
 
     def move_up(self):
         """
-        Move the menu cursor up one entry, if we're not already at the top of the list.
+        Move the menu cursor up one entry. 
+        
+        We only move if we're not already at the top of the list.
         """
         if self.selectedEntry > 0:
             self.selectedEntry = self.selectedEntry - 1
 
     def move_down(self):
         """
-        Move the menu cursor down an entry, if we're not already at the bottom of the list.
+        Move the menu cursor down an entry. 
+        
+        We only move if we're not already at the bottom of the list.
         """
         if self.selectedEntry < len(self.entries) - 1:
             self.selectedEntry = self.selectedEntry + 1
 
     def select(self):
+        """
+        Select (act upon) the currently hilighted menu entry.
+        """
         pass
 
     def paint(self, window):
+        """ Draw or refresh the main menu onscreen. """
         window.addstr(0, 0, self.title, curses.A_BOLD)
 
         x_pos = 2
@@ -91,49 +99,65 @@ class MainMenu:
         x_pos = x_pos + 3 # The previous string was two lines
         window.addstr(x_pos, 0, self.copyright)
 
-def initialize_curses():
-    """ Start up the curses UI. """
-    stdscr = curses.initscr()
-
-    curses.noecho()
-    curses.cbreak()
-
-    stdscr.keypad(True)
-
-    return stdscr
-
-def terminate_curses(stdscr):
-    """
-    Shut down the curses UI. We set the console back to a nice condition.
-    """
-    stdscr.keypad(False)
-
-    curses.nocbreak()
-    curses.echo()
-    curses.endwin()
 
 class MainApplication:
+    
+    """
+    Application driver class.
+    """
+    
     def __init__(self):
-        stdscr = initialize_curses()
+        self.stdscr = MainApplication.__initialize_curses()
 
+    def __del__(self):
+        MainApplication.__terminate_curses(self.stdscr)
+
+    def run(self):
+        """ The main event loop for the application. """
         menu = MainMenu()
-
-        menu.paint(stdscr)
-        stdscr.refresh()
+        
+        menu.paint(self.stdscr)
+        self.stdscr.refresh()
 
         while True:
-            char = stdscr.getch()
+            char = self.stdscr.getch()
 
             if char == ord('q'):
                 break
             elif char == curses.KEY_UP:
                 menu.move_up()
-                menu.paint(stdscr)
+                menu.paint(self.stdscr)
             elif char == curses.KEY_DOWN:
                 menu.move_down()
-                menu.paint(stdscr)
+                menu.paint(self.stdscr)
 
-        terminate_curses(stdscr)
+    @staticmethod
+    def __initialize_curses():
+        """ Start up the curses UI. """
+        stdscr = curses.initscr()
 
+        curses.noecho()
+        curses.cbreak()
+
+        stdscr.keypad(True)
+
+        return stdscr
+
+    @staticmethod
+    def __terminate_curses(stdscr):
+        """
+        Shut down the curses UI. We set the console back to a nice condition.
+        """
+        stdscr.keypad(False)
+
+        curses.nocbreak()
+        curses.echo()
+        curses.endwin()
+
+        
 if __name__ == "__main__":
     yselect = MainApplication()
+    yselect.run()
+
+    # Explicity delete the object to run __del__ in time.
+    del yselect
