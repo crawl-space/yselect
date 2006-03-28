@@ -22,7 +22,7 @@ class MainMenu:
 
     def __init__(self):
         self.title = \
-            "RPM/Yum %s package handling frontend." % (program_name)
+            "RPM/Yum `%s' package handling frontend." % (program_name)
 
         self.entries = (
             ("update", "[U]pdate",
@@ -30,6 +30,7 @@ class MainMenu:
             ("select", "[S]elect",
                 "Request which packages you want on your system."),
             ("install", "[I]nstall", "Install and upgrade wanted packages."),
+            ("remove", "[R]emove", "Remove unwanted software."),
             ("quit", "[Q]uit", "Quit %s." % (program_name))
         )
         # Start off with the "update" menu item selected:
