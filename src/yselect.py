@@ -37,7 +37,7 @@ class MainMenu:
         self.selectedEntry = 0
 
         self.navigation_info = \
-            "Move around with ^P and ^N, cursor keys, initial letters," + \
+            "Move around with ^P and ^N, cursor keys, initial letters, " + \
             "or digits;\n" + \
             "Press <enter> to confirm selection.  ^L redraws screen."
         self.copyright = \
@@ -54,19 +54,25 @@ class MainMenu:
         """
         Move the menu cursor up one entry. 
         
-        We only move if we're not already at the top of the list.
+        We only move up if we're not already at the top of the list. If we are,
+        we wrap to the bottom.
         """
         if self.selectedEntry > 0:
             self.selectedEntry = self.selectedEntry - 1
+        else:
+            self.selectedEntry = len(self.entries) - 1
 
     def move_down(self):
         """
         Move the menu cursor down an entry. 
         
-        We only move if we're not already at the bottom of the list.
+        We only move if we're not already at the bottom of the list. If we are,
+        we wrap to the top.
         """
         if self.selectedEntry < len(self.entries) - 1:
             self.selectedEntry = self.selectedEntry + 1
+        else:
+            self.selectedEntry = 0
 
     def select(self):
         """
