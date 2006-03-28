@@ -131,10 +131,10 @@ class MainApplication:
 
             if char == ord('q'):
                 break
-            elif char == curses.KEY_UP:
+            elif char == curses.KEY_UP or char == ord('k') or char == 16:
                 menu.move_up()
                 menu.paint(self.stdscr)
-            elif char == curses.KEY_DOWN:
+            elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
                 menu.move_down()
                 menu.paint(self.stdscr)
 
