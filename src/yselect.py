@@ -203,10 +203,9 @@ class MainApplication:
         curses.echo()
         curses.endwin()
 
-
-if __name__ == "__main__":
+def main():
     yselect = MainApplication()
     yselect.run()
 
-    # Explicity delete the object to run __del__ in time.
-    del yselect
+if __name__ == "__main__":
+    main()
