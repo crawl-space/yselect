@@ -97,8 +97,9 @@ class MainMenu(Menu):
             "or digits;\n" + \
             "Press <enter> to confirm selection.  ^L redraws screen."
         self.copyright = \
-            "Version %s\n" + \
-            "Copyright (C) 2006 Devan Goodwin and James Bowes\n" + \
+            "Version %s.\n" + \
+            "Copyright (C) 2006 Devan Goodwin.\n" + \
+            "Copyright (C) 2006 James Bowes.\n" + \
             "This is free software; see the GNU General Public Licence " + \
             "version 2\n" + \
             "or later for copying conditions.  There is NO warrenty.  See\n" + \
