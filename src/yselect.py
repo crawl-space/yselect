@@ -14,27 +14,83 @@ __revision__ = "$Rev$"
 version = "0.0.1"
 program_name = "yselect"
 
-class MainMenu:
+class Menu:
+    """
+    Parent Menu class.
+    """
+
+    def __init__(self):
+        self.selectedEntry = 0
+        self.title = \
+            "RPM/Yum `%s' package handling frontend." % (program_name)
+        self.entries = []
+
+    def move_up(self):
+        """
+        Move the menu cursor up one entry.
+
+        We only move up if we're not already at the top of the list. If we are,
+        we wrap to the bottom.
+        """
+        if self.selectedEntry > 0:
+            self.selectedEntry = self.selectedEntry - 1
+        else:
+            self.selectedEntry = len(self.entries) - 1
+
+    def move_down(self):
+        """
+        Move the menu cursor down an entry.
+
+        We only move if we're not already at the bottom of the list. If we are,
+        we wrap to the top.
+        """
+        if self.selectedEntry < len(self.entries) - 1:
+            self.selectedEntry = self.selectedEntry + 1
+        else:
+            self.selectedEntry = 0
+
+    def select(self):
+        """
+        Select (act upon) the currently hilighted menu entry.
+        """
+        raise NotImplementedError
+
+    def paint(self, window):
+        """
+        Draw or refresh the menu onscreen.
+        """
+        raise NotImplementedError
+
+class MenuEntry:
+    """
+    Object representation of a menu entry.
+    """
+
+    def __init__(self, action, display, description):
+        self.action = action
+        self.action_display = display
+        self.description = description
+
+class MainMenu(Menu):
 
     """
     yselect main menu screen.
     """
 
     def __init__(self):
-        self.title = \
-            "RPM/Yum `%s' package handling frontend." % (program_name)
 
-        self.entries = (
-            ("update", "[U]pdate",
-                "Update list of available packages, if possible."),
-            ("select", "[S]elect",
-                "Request which packages you want on your system."),
-            ("install", "[I]nstall", "Install and upgrade wanted packages."),
-            ("remove", "[R]emove", "Remove unwanted software."),
-            ("quit", "[Q]uit", "Quit %s." % (program_name))
-        )
-        # Start off with the "update" menu item selected:
-        self.selectedEntry = 0
+        Menu.__init__(self)
+
+        self.entries.append(MenuEntry("update", "[U]pdate",
+            "Update list of available packages, if possible."))
+        self.entries.append(MenuEntry("select", "[S]elect",
+            "Request which packages you want on your system."))
+        self.entries.append(MenuEntry("install", "[I]nstall",
+            "Install and upgrade wanted packages."))
+        self.entries.append(MenuEntry("remove", "[R]emove",
+            "Remove unwanted software."))
+        self.entries.append(MenuEntry("quit", "[Q]uit",
+                "Quit %s." % (program_name)))
 
         self.navigation_info = \
             "Move around with ^P and ^N, cursor keys, initial letters, " + \
@@ -50,45 +106,17 @@ class MainMenu:
 
         self.copyright = self.copyright % (version, program_name)
 
-    def move_up(self):
-        """
-        Move the menu cursor up one entry. 
-        
-        We only move up if we're not already at the top of the list. If we are,
-        we wrap to the bottom.
-        """
-        if self.selectedEntry > 0:
-            self.selectedEntry = self.selectedEntry - 1
-        else:
-            self.selectedEntry = len(self.entries) - 1
-
-    def move_down(self):
-        """
-        Move the menu cursor down an entry. 
-        
-        We only move if we're not already at the bottom of the list. If we are,
-        we wrap to the top.
-        """
-        if self.selectedEntry < len(self.entries) - 1:
-            self.selectedEntry = self.selectedEntry + 1
-        else:
-            self.selectedEntry = 0
-
-    def select(self):
-        """
-        Select (act upon) the currently hilighted menu entry.
-        """
-        pass
-
     def paint(self, window):
-        """ Draw or refresh the main menu onscreen. """
+        """
+        Draw or refresh the main menu onscreen.
+        """
         window.addstr(0, 0, self.title, curses.A_BOLD)
 
         x_pos = 2
-        for i in range(len(self.entries)):
-            menu_entry = self.entries[i]
+        i = 0
+        for menu_entry in self.entries:
 
-            if self.selectedEntry == i:
+            if menu_entry == self.entries[self.selectedEntry]:
                 prefix = " * "
                 format = curses.A_REVERSE
             else:
@@ -96,9 +124,10 @@ class MainMenu:
                 format = curses.A_NORMAL
 
             entry_string = \
-                prefix + str(i) + ". " + menu_entry[1] + "\t" + menu_entry[2]
+                prefix + str(i) + ". " + menu_entry.action_display + "\t" + menu_entry.description
             window.addstr(x_pos, 0, entry_string, format)
             x_pos = x_pos + 1
+            i = i + 1
 
         x_pos = x_pos + 1
         window.addstr(x_pos, 0, self.navigation_info, curses.A_BOLD)
@@ -106,13 +135,26 @@ class MainMenu:
         x_pos = x_pos + 3 # The previous string was two lines
         window.addstr(x_pos, 0, self.copyright)
 
+class SelectMenu(Menu):
+    """
+    Main package listing.
+    """
+
+    def __init__(self):
+        Menu.__init__(self)
+
+    def paint(self, window):
+        """
+        Draw or refresh the main menu onscreen.
+        """
+        window.addstr(0, 0, self.title, curses.A_BOLD)
 
 class MainApplication:
-    
+
     """
     Application driver class.
     """
-    
+
     def __init__(self):
         self.stdscr = MainApplication.__initialize_curses()
 
@@ -122,7 +164,7 @@ class MainApplication:
     def run(self):
         """ The main event loop for the application. """
         menu = MainMenu()
-        
+
         menu.paint(self.stdscr)
         self.stdscr.refresh()
 
@@ -161,7 +203,7 @@ class MainApplication:
         curses.echo()
         curses.endwin()
 
-        
+
 if __name__ == "__main__":
     yselect = MainApplication()
     yselect.run()
