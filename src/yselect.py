@@ -17,7 +17,7 @@ program_name = "yselect"
 
 class Menu:
     """
-    Parent Menu class.
+    Parent Menu class. Maintains a reference to the currently selected menu entry.
     """
 
     def __init__(self):
@@ -56,21 +56,29 @@ class Menu:
         """
         raise NotImplementedError
 
-    def paint(self, window):
+    def paint(self):
         """
         Draw or refresh the menu onscreen.
         """
         raise NotImplementedError
+
+	def selectCurrent(self):
+		"""
+		Act upon the currently selected menu item.
+		"""
+		raise NotImplementedError
 
 class MenuEntry:
     """
     Object representation of a menu entry.
     """
 
-    def __init__(self, action, display, description):
+    # TODO: Remove default method None:
+    def __init__(self, action, display, description, executeMethod):
         self.action = action
         self.action_display = display
         self.description = description
+        self.executeMethod = executeMethod
 
 class MainMenu(Menu):
 
@@ -78,20 +86,21 @@ class MainMenu(Menu):
     yselect main menu screen.
     """
 
-    def __init__(self):
+    def __init__(self, stdscr):
 
         Menu.__init__(self)
+        self.stdscr = stdscr
 
         self.entries.append(MenuEntry("update", "[U]pdate",
-            "Update list of available packages, if possible."))
+            "Update list of available packages, if possible.", terminateCurses))
         self.entries.append(MenuEntry("select", "[S]elect",
-            "Request which packages you want on your system."))
+            "Request which packages you want on your system.", terminateCurses))
         self.entries.append(MenuEntry("install", "[I]nstall",
-            "Install and upgrade wanted packages."))
+            "Install and upgrade wanted packages.", terminateCurses))
         self.entries.append(MenuEntry("remove", "[R]emove",
-            "Remove unwanted software."))
+            "Remove unwanted software.", terminateCurses))
         self.entries.append(MenuEntry("quit", "[Q]uit",
-                "Quit %s." % (program_name)))
+                "Quit %s." % (program_name), terminateCurses))
 
         self.navigation_info = \
             "Move around with ^P and ^N, cursor keys, initial letters, " + \
@@ -108,11 +117,11 @@ class MainMenu(Menu):
 
         self.copyright = self.copyright % (version, program_name)
 
-    def paint(self, window):
+    def paint(self):
         """
         Draw or refresh the main menu onscreen.
         """
-        window.addstr(0, 0, self.title, curses.A_BOLD)
+        self.stdscr.addstr(0, 0, self.title, curses.A_BOLD)
 
         x_pos = 2
         i = 0
@@ -127,15 +136,18 @@ class MainMenu(Menu):
 
             entry_string = \
                 prefix + str(i) + ". " + menu_entry.action_display + "\t" + menu_entry.description
-            window.addstr(x_pos, 0, entry_string, format)
+            self.stdscr.addstr(x_pos, 0, entry_string, format)
             x_pos = x_pos + 1
             i = i + 1
 
         x_pos = x_pos + 1
-        window.addstr(x_pos, 0, self.navigation_info, curses.A_BOLD)
+        self.stdscr.addstr(x_pos, 0, self.navigation_info, curses.A_BOLD)
 
         x_pos = x_pos + 3 # The previous string was two lines
-        window.addstr(x_pos, 0, self.copyright)
+        self.stdscr.addstr(x_pos, 0, self.copyright)
+
+    def selectCurrent(self):
+        self.entries[self.selectedEntry].executeMethod()
 
 class SelectMenu(Menu):
     """
@@ -156,12 +168,16 @@ class MainApplication:
     """
     Application driver class.
     """
-    
-    def run(self, screen):
-        """ The main event loop for the application. """
-        menu = MainMenu()
 
-        menu.paint(screen)
+    def run(self, screen):
+        """
+		The main event loop for the application.
+		"""
+
+		# Start out with the main menu:
+        currentMenu = MainMenu(screen)
+
+        currentMenu.paint()
         screen.refresh()
 
         while True:
@@ -170,11 +186,14 @@ class MainApplication:
             if char == ord('q'):
                 break
             elif char == curses.KEY_UP or char == ord('k') or char == 16:
-                menu.move_up()
-                menu.paint(screen)
+                currentMenu.move_up()
+                currentMenu.paint()
             elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
-                menu.move_down()
-                menu.paint(screen)
+                currentMenu.move_down()
+                currentMenu.paint()
+            elif char == curses.KEY_ENTER:
+                currentMenu.selectCurrent()
+                currentMenu.paint()
 
     @staticmethod
     def __initialize_curses():
@@ -190,14 +209,17 @@ class MainApplication:
 
     @staticmethod
     def __terminate_curses(stdscr):
-        """
-        Shut down the curses UI. We set the console back to a nice condition.
-        """
-        stdscr.keypad(False)
+        terminateCurses()
 
-        curses.nocbreak()
-        curses.echo()
-        curses.endwin()
+def terminateCurses():
+    """
+    Shut down the curses UI. We set the console back to a nice condition.
+    """
+    stdscr.keypad(False)
+
+    curses.nocbreak()
+    curses.echo()
+    curses.endwin()
 
 def main(screen):
     yselect = MainApplication()
