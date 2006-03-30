@@ -8,6 +8,7 @@ Copyright (C) 2006 Devan Goodwin <dg@fnordia.org>
 """
 
 import curses
+import curses.wrapper
 
 __revision__ = "$Rev$"
 
@@ -155,31 +156,25 @@ class MainApplication:
     """
     Application driver class.
     """
-
-    def __init__(self):
-        self.stdscr = MainApplication.__initialize_curses()
-
-    def __del__(self):
-        MainApplication.__terminate_curses(self.stdscr)
-
-    def run(self):
+    
+    def run(self, screen):
         """ The main event loop for the application. """
         menu = MainMenu()
 
-        menu.paint(self.stdscr)
-        self.stdscr.refresh()
+        menu.paint(screen)
+        screen.refresh()
 
         while True:
-            char = self.stdscr.getch()
+            char = screen.getch()
 
             if char == ord('q'):
                 break
             elif char == curses.KEY_UP or char == ord('k') or char == 16:
                 menu.move_up()
-                menu.paint(self.stdscr)
+                menu.paint(screen)
             elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
                 menu.move_down()
-                menu.paint(self.stdscr)
+                menu.paint(screen)
 
     @staticmethod
     def __initialize_curses():
@@ -204,9 +199,13 @@ class MainApplication:
         curses.echo()
         curses.endwin()
 
-def main():
+def main(screen):
     yselect = MainApplication()
-    yselect.run()
+    yselect.run(screen)
 
 if __name__ == "__main__":
-    main()
+    try:
+        curses.wrapper(main)
+    except KeyboardInterrupt:
+        # We don't want to complain on ctrl-c
+        pass
