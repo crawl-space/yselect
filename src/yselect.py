@@ -123,6 +123,8 @@ class MainMenu(Menu):
         """
         self.stdscr.addstr(0, 0, self.title, curses.A_BOLD)
 
+        (height, width) = self.stdscr.getmaxyx()
+
         x_pos = 2
         i = 0
         for menu_entry in self.entries:
@@ -134,9 +136,8 @@ class MainMenu(Menu):
                 prefix = "   "
                 format = curses.A_NORMAL
 
-            entry_string = \
-                prefix + str(i) + ". " + menu_entry.action_display + "\t" + menu_entry.description
-            self.stdscr.addstr(x_pos, 0, entry_string, format)
+            entry_string = "%s %d. %-11.11s %-80.80s" % (prefix, i, menu_entry.action_display, menu_entry.description)
+            self.stdscr.addnstr(x_pos, 0, entry_string, width, format)
             x_pos = x_pos + 1
             i = i + 1
 
