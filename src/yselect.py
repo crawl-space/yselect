@@ -92,15 +92,15 @@ class MainMenu(Menu):
         self.stdscr = stdscr
 
         self.entries.append(MenuEntry("update", "[U]pdate",
-            "Update list of available packages, if possible.", terminateCurses))
+            "Update list of available packages, if possible.", None))
         self.entries.append(MenuEntry("select", "[S]elect",
-            "Request which packages you want on your system.", terminateCurses))
+            "Request which packages you want on your system.", None))
         self.entries.append(MenuEntry("install", "[I]nstall",
-            "Install and upgrade wanted packages.", terminateCurses))
+            "Install and upgrade wanted packages.", None))
         self.entries.append(MenuEntry("remove", "[R]emove",
-            "Remove unwanted software.", terminateCurses))
+            "Remove unwanted software.", None))
         self.entries.append(MenuEntry("quit", "[Q]uit",
-                "Quit %s." % (program_name), terminateCurses))
+                "Quit %s." % (program_name), None))
 
         self.navigation_info = \
             "Move around with ^P and ^N, cursor keys, initial letters, " + \
@@ -196,31 +196,6 @@ class MainApplication:
                 currentMenu.selectCurrent()
                 currentMenu.paint()
 
-    @staticmethod
-    def __initialize_curses():
-        """ Start up the curses UI. """
-        stdscr = curses.initscr()
-
-        curses.noecho()
-        curses.cbreak()
-
-        stdscr.keypad(True)
-
-        return stdscr
-
-    @staticmethod
-    def __terminate_curses(stdscr):
-        terminateCurses()
-
-def terminateCurses():
-    """
-    Shut down the curses UI. We set the console back to a nice condition.
-    """
-    stdscr.keypad(False)
-
-    curses.nocbreak()
-    curses.echo()
-    curses.endwin()
 
 def main(screen):
     yselect = MainApplication()
