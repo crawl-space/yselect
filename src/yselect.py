@@ -74,11 +74,13 @@ class MenuEntry:
     """
 
     # TODO: Remove default method None:
-    def __init__(self, action, display, description, executeMethod):
+    def __init__(self, action, display, description, execute_method,
+        shortcut_key):
         self.action = action
         self.action_display = display
         self.description = description
-        self.executeMethod = executeMethod
+        self.execute_method = execute_method
+        self.shortcut_key = shortcut_key
 
 class MainMenu(Menu):
 
@@ -92,15 +94,15 @@ class MainMenu(Menu):
         self.stdscr = stdscr
 
         self.entries.append(MenuEntry("update", "[U]pdate",
-            "Update list of available packages, if possible.", None))
+            "Update list of available packages, if possible.", None, 'u'))
         self.entries.append(MenuEntry("select", "[S]elect",
-            "Request which packages you want on your system.", None))
+            "Request which packages you want on your system.", None, 's'))
         self.entries.append(MenuEntry("install", "[I]nstall",
-            "Install and upgrade wanted packages.", None))
+            "Install and upgrade wanted packages.", None, 'i'))
         self.entries.append(MenuEntry("remove", "[R]emove",
-            "Remove unwanted software.", None))
+            "Remove unwanted software.", None, 'r'))
         self.entries.append(MenuEntry("quit", "[Q]uit",
-                "Quit %s." % (program_name), None))
+                "Quit %s." % (program_name), None, 'q'))
 
         self.navigation_info = \
             "Move around with ^P and ^N, cursor keys, initial letters, " + \
@@ -148,6 +150,7 @@ class MainMenu(Menu):
         self.stdscr.addstr(x_pos, 0, self.copyright)
 
     def selectCurrent(self):
+        raise Exception
         self.entries[self.selectedEntry].executeMethod()
 
 class SelectMenu(Menu):
@@ -188,14 +191,12 @@ class MainApplication:
                 break
             elif char == curses.KEY_UP or char == ord('k') or char == 16:
                 currentMenu.move_up()
-                currentMenu.paint()
             elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
                 currentMenu.move_down()
-                currentMenu.paint()
-            elif char == curses.KEY_ENTER:
+            elif char == curses.KEY_ENTER or char == 10:
                 currentMenu.selectCurrent()
-                currentMenu.paint()
 
+            currentMenu.paint()
 
 def main(screen):
     yselect = MainApplication()
