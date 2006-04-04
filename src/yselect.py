@@ -153,6 +153,12 @@ class MainMenu(Menu):
         raise Exception
         self.entries[self.selectedEntry].executeMethod()
 
+    def tryShortcut(self, key):
+        for entry in self.entries:
+            if key == ord(entry.shortcut_key):
+                self.selectedEntry = self.entries.index(entry)
+                
+
 class SelectMenu(Menu):
     """
     Main package listing.
@@ -195,6 +201,9 @@ class MainApplication:
                 currentMenu.move_down()
             elif char == curses.KEY_ENTER or char == 10:
                 currentMenu.selectCurrent()
+            else:
+                #Check with menu shortcuts
+                currentMenu.tryShortcut(char)
 
             currentMenu.paint()
 
