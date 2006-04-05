@@ -44,8 +44,25 @@ class ListView:
     def update(self):
         (height, width) = self.window.getmaxyx()
         self.window.addstr(0,0, "EIOM Pri Section\tPackage\tInst.ver\tAvail.ver\tDescription")
-        self.pad.addstr(0,3, "--- sublist ---")
+        self.add_menu_title(0, 5, "another sublist", 1)
+        self.add_menu_title(1, 5, "another sublist", 2)
+        self.add_menu_title(2, 5, "another sublist", 3)
         self.window.refresh()
+
+    def add_menu_title(self, y, x, title, depth):
+        """
+        Draw a menu title on the screen.
+
+        Starting at position x,y draw a menu title. depth indicates how many
+        parents the menu has. Title is rendered in bold.
+        """
+        line_length = depth * 2 - 1
+        
+        self.pad.hline(y, x, curses.ACS_HLINE, line_length)
+        self.pad.addstr(y, x + line_length + 1 , title, curses.A_BOLD)
+        self.pad.hline(y, x + line_length + 2 + len(title), curses.ACS_HLINE,
+            line_length)
+
 
 class DetailsView:
 
