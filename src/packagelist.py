@@ -11,6 +11,7 @@ class PackageView:
 
         self.list_window = ListView(window.derwin(1, 0))
         self.details_window = DetailsView(window.derwin(height / 2, 0))
+        self.details_window.setModel(DetailsModel())
 
 
     def update(self):
@@ -73,11 +74,37 @@ class DetailsView:
         self.details_pad = self.window.derwin(height - 2, 0, 1, 0) 
         self.details_pad.bkgd(" ", curses.color_pair(0))
 
+        self.details_model = None
+
     def update(self):
         (height, width) = self.window.getmaxyx()
-        self.window.addstr(0,0, "bar!   Required")
-        self.window.addstr(height - 1, 0, "press d for more.")
-        self.details_pad.addstr(0,0, "DETAILS")
+               
+        if self.details_model:
+            self.window.addstr(0,0, self.details_model.name)
+            # TODO: Only show this when there is more to display
+            self.window.addstr(height - 1, 0, "press d for more.")
+            self.details_pad.addstr(0,0, "Name: %s" % self.details_model.name)
+            self.details_pad.addstr(1,0,
+                "Version: %s" % self.details_model.version)
+            self.details_pad.addstr(2,0,
+                "Release: %s" % self.details_model.release)
+            self.details_pad.addstr(3,0,
+                "Architecture: %s" % self.details_model.arch)
+            self.details_pad.addstr(4,0,
+                "Details: %s" % self.details_model.description)
+
+    def setModel(self, details_model):
+        self.details_model = details_model
+
+
+class DetailsModel:
+
+    def __init__(self):
+        self.name = "fizzle"
+        self.version = "1.2.45"
+        self.release = "4"
+        self.arch = "i386"
+        self.description = "Jozzlebaz\nflark! phanf."
 
 
 def main(window):
