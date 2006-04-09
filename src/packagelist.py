@@ -105,16 +105,24 @@ class DetailsView:
             self.window.addstr(0,0, self.details_model.name)
             # TODO: Only show this when there is more to display
             self.window.addstr(height - 1, 0, "press d for more.")
-            self.details_pad.addstr(0,0, "Name: %s" % self.details_model.name)
-            self.details_pad.addstr(1,0,
-                "Version: %s" % self.details_model.version)
-            self.details_pad.addstr(2,0,
-                "Release: %s" % self.details_model.release)
-            self.details_pad.addstr(3,0,
-                "Architecture: %s" % self.details_model.arch)
-            self.details_pad.addstr(4,0,
-                "Details: %s" % self.details_model.description)
+            self.update_summary(height, width)
 
+    def update_summary(self, height, width):
+        self.details_pad.addstr(0, 0, "%s - %s" % (self.details_model.name,
+            self.details_model.summary), curses.A_BOLD)
+        self.details_pad.addstr(2, 0, self.details_model.description)
+
+    def update_full(self, height, width):
+        self.details_pad.addstr(0,0, "Name: %s" % self.details_model.name)
+        self.details_pad.addstr(1,0,
+            "Version: %s" % self.details_model.version)
+        self.details_pad.addstr(2,0,
+            "Release: %s" % self.details_model.release)
+        self.details_pad.addstr(3,0,
+            "Architecture: %s" % self.details_model.arch)
+        self.details_pad.addstr(4,0,
+            "Details: %s" % self.details_model.description)
+       
     def setModel(self, details_model):
         self.details_model = details_model
 
@@ -126,6 +134,7 @@ class DetailsModel:
         self.version = "1.2.45"
         self.release = "4"
         self.arch = "i386"
+        self.summary = "the jozzlebazzer phanf."
         self.description = "Jozzlebaz\nflark! phanf."
 
 
