@@ -47,22 +47,37 @@ class ListView:
 
         self.list_model = list_model
 
+        self.selected = 1
+
     def update(self):
         (height, width) = self.window.getmaxyx()
         self.window.addstr(0,0, "EIOM Pri Section\tPackage\tInst.ver\tAvail.ver\tDescription")
         self.add_list(self.list_model, 0, 1)
         self.window.refresh()
 
+    def get_attribute(self, row):
+        if (row == self.selected):
+            attribute = curses.A_REVERSE
+        else:
+            attribute = curses.A_NORMAL
+        return attribute
+
     def add_list(self, list_model, row, depth):
-        self.add_menu_title(row, 5, list_model.title, depth)
+        attribute = self.get_attribute(row)
+        self.add_menu_title(row, 5, list_model.title, depth, attribute)
         for i in range(len(list_model.packages)):
             entry = list_model.packages[i]
             if entry.__class__ == ListModel:
                 self.add_list(entry, i + row + 1, 2)
             else:
-                self.pad.addstr(i + row + 1, 0, list_model.packages[i])
+                (y, x) = self.pad.getmaxyx()
+                format_string = "%%-%ds" % x 
+                pkg_string = format_string % list_model.packages[i]
+                attribute = self.get_attribute(i + row + 1)
+                self.pad.addstr(i + row + 1, 0, pkg_string,
+                    attribute)
 
-    def add_menu_title(self, y, x, title, depth):
+    def add_menu_title(self, y, x, title, depth, attribute):
         """
         Draw a menu title on the screen.
 
@@ -70,12 +85,18 @@ class ListView:
         parents the menu has. Title is rendered in bold.
         """
         line_length = depth * 2 - 1
-        
-        self.pad.hline(y, x, curses.ACS_HLINE, line_length)
-        self.pad.addstr(y, x + line_length + 1 , title, curses.A_BOLD)
+       
+        self.pad.addstr(y, 0, x * " ", attribute) 
+        self.pad.hline(y, x, curses.ACS_HLINE, line_length, attribute)
+        self.pad.addstr(y, x + line_length, " %s " % title, curses.A_BOLD
+            and attribute)
         self.pad.hline(y, x + line_length + 2 + len(title), curses.ACS_HLINE,
-            line_length)
-
+            line_length, attribute)
+        
+        (max_y, max_x) = self.pad.getmaxyx()
+        line_end = max_x - (x + 2 * line_length + 2 + len(title))
+        self.pad.addstr(y, x + 2 * line_length + 2 + len(title), line_end * " ",
+            attribute)
 
 class ListModel:
 
