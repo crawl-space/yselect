@@ -19,75 +19,9 @@
 
 import curses
 
+import menu
+
 __revision__ = "$Rev$"
-
-class Menu:
-    """
-    Parent Menu class. Maintains a reference to the currently selected menu entry.
-    """
-
-    def __init__(self):
-        self.selectedEntry = 0
-        self.entries = []
-
-    def handle_input(self, char):
-        """ React to the provided input. """
-
-        handled = True
-        
-        if char == curses.KEY_UP or char == ord('k') or char == 16:
-            self.move_up()
-        elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
-            self.move_down()
-        elif char == curses.KEY_ENTER or char == 10:
-            self.selectCurrent()
-        else:
-            # We didn't handle the input.
-            handled = False
-
-        return handled
-
-    def move_up(self):
-        """
-        Move the menu cursor up one entry.
-
-        We only move up if we're not already at the top of the list. If we are,
-        we wrap to the bottom.
-        """
-        if self.selectedEntry > 0:
-            self.selectedEntry = self.selectedEntry - 1
-        else:
-            self.selectedEntry = len(self.entries) - 1
-
-    def move_down(self):
-        """
-        Move the menu cursor down an entry.
-
-        We only move if we're not already at the bottom of the list. If we are,
-        we wrap to the top.
-        """
-        if self.selectedEntry < len(self.entries) - 1:
-            self.selectedEntry = self.selectedEntry + 1
-        else:
-            self.selectedEntry = 0
-
-    def select(self):
-        """
-        Select (act upon) the currently hilighted menu entry.
-        """
-        raise NotImplementedError
-
-    def paint(self):
-        """
-        Draw or refresh the menu onscreen.
-        """
-        raise NotImplementedError
-
-	def selectCurrent(self):
-		"""
-		Act upon the currently selected menu item.
-		"""
-		raise NotImplementedError
 
 class MenuEntry:
     """
@@ -103,7 +37,7 @@ class MenuEntry:
         self.execute_method = execute_method
         self.shortcut_key = shortcut_key
 
-class MainMenu(Menu):
+class MainMenu(menu.Menu):
 
     """
     yselect main menu screen.
@@ -111,7 +45,7 @@ class MainMenu(Menu):
 
     def __init__(self, stdscr, program_name, program_version):
 
-        Menu.__init__(self)
+        menu.Menu.__init__(self)
         self.stdscr = stdscr
 
         self.title = \
@@ -174,13 +108,13 @@ class MainMenu(Menu):
         x_pos = x_pos + 3 # The previous string was two lines
         self.stdscr.addstr(x_pos, 0, self.copyright)
 
-    def selectCurrent(self):
+    def select_current(self):
         raise Exception
         self.entries[self.selectedEntry].executeMethod()
 
     def handle_input(self, key):
         #Try Super's implementation first.
-        handled = Menu.handle_input(self, key)
+        handled = menu.Menu.handle_input(self, key)
         if not handled:
             for entry in self.entries:
                 if key == ord(entry.shortcut_key):
