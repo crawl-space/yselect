@@ -145,7 +145,8 @@ class MainMenu(Menu):
                 prefix = "   "
                 format = curses.A_NORMAL
 
-            entry_string = "%s %d. %-11.11s %-80.80s" % (prefix, i, menu_entry.action_display, menu_entry.description)
+            entry_string = "%s %d. %-11.11s %-80.80s" % \
+                (prefix, i, menu_entry.action_display, menu_entry.description)
             self.stdscr.addnstr(x_pos, 0, entry_string, width, format)
             x_pos = x_pos + 1
             i = i + 1
@@ -164,19 +165,3 @@ class MainMenu(Menu):
         for entry in self.entries:
             if key == ord(entry.shortcut_key):
                 self.selectedEntry = self.entries.index(entry)
-                
-
-class SelectMenu(Menu):
-    """
-    Main package listing.
-    """
-
-    def __init__(self):
-        Menu.__init__(self)
-
-    def paint(self, window):
-        """
-        Draw or refresh the main menu onscreen.
-        """
-        window.addstr(0, 0, self.title, curses.A_BOLD)
-
