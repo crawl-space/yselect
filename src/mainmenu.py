@@ -33,12 +33,19 @@ class Menu:
     def handle_input(self, char):
         """ React to the provided input. """
 
+        handled = True
+        
         if char == curses.KEY_UP or char == ord('k') or char == 16:
             self.move_up()
         elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
             self.move_down()
         elif char == curses.KEY_ENTER or char == 10:
             self.selectCurrent()
+        else:
+            # We didn't handle the input.
+            handled = False
+
+        return handled
 
     def move_up(self):
         """
@@ -173,8 +180,11 @@ class MainMenu(Menu):
 
     def handle_input(self, key):
         #Try Super's implementation first.
-        Menu.handle_input(self, key)
-        
-        for entry in self.entries:
-            if key == ord(entry.shortcut_key):
-                self.selectedEntry = self.entries.index(entry)
+        handled = Menu.handle_input(self, key)
+        if not handled:
+            for entry in self.entries:
+                if key == ord(entry.shortcut_key):
+                    self.selectedEntry = self.entries.index(entry)
+                    handled = True
+
+        return handled
