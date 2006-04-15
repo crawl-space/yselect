@@ -26,6 +26,7 @@ sys.path.append('../src/')
 
 import yselectTests
 import observabletests
+import mainmenutests
 
 def suite():
     result = unittest.TestSuite()
@@ -34,6 +35,7 @@ def suite():
     # TODO: Find a way to search these out:
     result.addTest(yselectTests.suite())
     result.addTest(observabletests.suite())
+    result.addTest(mainmenutests.suite())
 
     return result
 

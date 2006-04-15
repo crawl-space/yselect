@@ -34,8 +34,23 @@ class MainMenuModelTests(unittest.TestCase):
         except:
             # Expected, do nothing.
             pass
-   
-    pass
+  
+        try:
+            self.model.select(len(self.model.entries))
+            self.fail()
+        except:
+            pass
+        
+        try:
+            self.model.select(0)
+        except:
+            self.fail()
+
+        try:
+            self.model.select(len(self.model.entries) - 1)
+        except:
+            self.fail()
+
 
 def suite():
     result = unittest.TestSuite()
