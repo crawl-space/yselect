@@ -45,12 +45,10 @@ class MainApplication:
 		# Start out with the main menu:
         currentMenu = mainmenu.MainMenu(screen, program_name, program_version)
 
-        currentMenu.paint()
-        screen.refresh()
-
         while True:
+            currentMenu.paint()
+            
             char = screen.getch()
-
             if char == ord('q'):
                 break
             elif char == curses.KEY_UP or char == ord('k') or char == 16:
@@ -62,8 +60,6 @@ class MainApplication:
             else:
                 #Check with menu shortcuts
                 currentMenu.tryShortcut(char)
-
-            currentMenu.paint()
 
 def main(screen):
     yselect = MainApplication()
