@@ -37,6 +37,31 @@ class MenuEntry:
         self.execute_method = execute_method
         self.shortcut_key = shortcut_key
 
+
+class MainMenuModel:
+
+    """
+    yselect main menu data model.
+    """
+
+    def __init__(self, program_name):
+        self.entries = []
+        self.entries.append(MenuEntry("update", "[U]pdate",
+            "Update list of available packages, if possible.", None, 'u'))
+        self.entries.append(MenuEntry("select", "[S]elect",
+            "Request which packages you want on your system.", None, 's'))
+        self.entries.append(MenuEntry("install", "[I]nstall",
+            "Install and upgrade wanted packages.", None, 'i'))
+        self.entries.append(MenuEntry("remove", "[R]emove",
+            "Remove unwanted software.", None, 'r'))
+        self.entries.append(MenuEntry("quit", "[Q]uit",
+                "Quit %s." % (program_name), None, 'q'))
+      
+    def select(self, selection):
+        if (selection < 0 or selection > len(self.entries)):
+            raise IndexError
+        
+
 class MainMenu(menu.Menu):
 
     """

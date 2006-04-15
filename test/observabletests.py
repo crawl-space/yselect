@@ -19,8 +19,6 @@
 
 """
 Tests for the observable class.
-
-Copyright (C) 2006 James Bowes <jbowes@redhat.com>
 """
 
 import unittest
