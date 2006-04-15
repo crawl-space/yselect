@@ -30,6 +30,16 @@ class Menu:
         self.selectedEntry = 0
         self.entries = []
 
+    def handle_input(self, char):
+        """ React to the provided input. """
+
+        if char == curses.KEY_UP or char == ord('k') or char == 16:
+            self.move_up()
+        elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
+            self.move_down()
+        elif char == curses.KEY_ENTER or char == 10:
+            self.selectCurrent()
+
     def move_up(self):
         """
         Move the menu cursor up one entry.
@@ -161,7 +171,10 @@ class MainMenu(Menu):
         raise Exception
         self.entries[self.selectedEntry].executeMethod()
 
-    def tryShortcut(self, key):
+    def handle_input(self, key):
+        #Try Super's implementation first.
+        Menu.handle_input(self, key)
+        
         for entry in self.entries:
             if key == ord(entry.shortcut_key):
                 self.selectedEntry = self.entries.index(entry)

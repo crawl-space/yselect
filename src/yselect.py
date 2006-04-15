@@ -21,7 +21,6 @@
 Yselect program.
 """
 
-import curses
 import curses.wrapper
 
 import mainmenu
@@ -49,17 +48,7 @@ class MainApplication:
             currentMenu.paint()
             
             char = screen.getch()
-            if char == ord('q'):
-                break
-            elif char == curses.KEY_UP or char == ord('k') or char == 16:
-                currentMenu.move_up()
-            elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
-                currentMenu.move_down()
-            elif char == curses.KEY_ENTER or char == 10:
-                currentMenu.selectCurrent()
-            else:
-                #Check with menu shortcuts
-                currentMenu.tryShortcut(char)
+            currentMenu.handle_input(char)
 
 def main(screen):
     yselect = MainApplication()
