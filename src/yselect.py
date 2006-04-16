@@ -36,6 +36,9 @@ class MainApplication:
     Application driver class.
     """
 
+    def __init__(self):
+        self.do_quit = False
+
     def run(self, screen):
         """
 		The main event loop for the application.
@@ -44,11 +47,17 @@ class MainApplication:
 		# Start out with the main menu:
         currentMenu = mainmenu.MainMenu(screen, program_name, program_version)
 
-        while True:
+        currentMenu.model.add_observer("quit", self)
+
+        while not self.do_quit:
             currentMenu.paint()
             
             char = screen.getch()
             currentMenu.handle_input(char)
+
+    def notify(self, observable):
+        self.do_quit = True
+
 
 def main(screen):
     yselect = MainApplication()

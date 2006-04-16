@@ -20,6 +20,7 @@
 import curses
 
 import menu
+import observable
 
 __revision__ = "$Rev$"
 
@@ -38,13 +39,15 @@ class MenuEntry:
         self.shortcut_key = shortcut_key
 
 
-class MainMenuModel:
+class MainMenuModel(observable.Observable):
 
     """
     yselect main menu data model.
     """
 
     def __init__(self, program_name):
+        observable.Observable.__init__(self)
+        
         self.entries = []
         self.entries.append(MenuEntry("update", "[U]pdate",
             "Update list of available packages, if possible.", None, 'u'))
@@ -56,11 +59,15 @@ class MainMenuModel:
             "Remove unwanted software.", None, 'r'))
         self.entries.append(MenuEntry("quit", "[Q]uit",
                 "Quit %s." % (program_name), None, 'q'))
-      
+
+        for entry in self.entries:
+            self.register_signal(entry.action)
+        
     def select(self, selection):
         if (selection < 0 or selection > len(self.entries)):
             raise IndexError
-        
+        self.emit_signal(self.entries[selection].action)
+
 
 class MainMenu(menu.Menu):
 
@@ -75,6 +82,8 @@ class MainMenu(menu.Menu):
 
         self.title = \
             "RPM/Yum `%s' package handling frontend." % (program_name)
+
+        self.model = MainMenuModel(program_name)
 
         self.entries.append(MenuEntry("update", "[U]pdate",
             "Update list of available packages, if possible.", None, 'u'))
@@ -112,9 +121,9 @@ class MainMenu(menu.Menu):
 
         x_pos = 2
         i = 0
-        for menu_entry in self.entries:
+        for menu_entry in self.model.entries:
 
-            if menu_entry == self.entries[self.selectedEntry]:
+            if menu_entry == self.model.entries[self.selectedEntry]:
                 prefix = " * "
                 format = curses.A_REVERSE
             else:
@@ -134,16 +143,15 @@ class MainMenu(menu.Menu):
         self.stdscr.addstr(x_pos, 0, self.copyright)
 
     def select_current(self):
-        raise Exception
-        self.entries[self.selectedEntry].executeMethod()
+        self.model.select(self.selectedEntry)
 
     def handle_input(self, key):
         #Try Super's implementation first.
         handled = menu.Menu.handle_input(self, key)
         if not handled:
-            for entry in self.entries:
+            for entry in self.model.entries:
                 if key == ord(entry.shortcut_key):
-                    self.selectedEntry = self.entries.index(entry)
+                    self.selectedEntry = self.model.entries.index(entry)
                     handled = True
 
         return handled
