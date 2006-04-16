@@ -19,6 +19,7 @@
 
 import curses
 
+import menu
 
 class PackageView:
 
@@ -36,28 +37,30 @@ class PackageView:
         self.details_window.setModel(DetailsModel())
 
 
-    def update(self):
-        self.list_window.update()
-        self.details_window.update()
+    def paint(self):
+        self.list_window.paint()
+        self.details_window.paint()
 
         (height, width) = self.window.getmaxyx()
 
         self.window.addstr(0, 0, "yselect - inspection of package states (avail., priority)")
-        self.window.refresh()
 
     def run(self):
 
         while True:
-            self.update()
+            self.paint()
             char = self.window.getch()
 
             if char == ord('q'):
                 break
+            
+            self.list_window.handle_input(char)
 
-
-class ListView:
+class ListView(menu.Menu):
 
     def __init__(self, window, list_model):
+        menu.Menu.__init__(self)
+        
         self.window = window
         self.window.bkgd(" ", curses.color_pair(2))
         padwin = self.window.derwin(1,0)
@@ -65,17 +68,16 @@ class ListView:
         self.pad.bkgd(" ", curses.color_pair(0))
 
         self.list_model = list_model
+        self.selectedEntry = 3
 
-        self.selected = 1
-
-    def update(self):
+    def paint(self):
         (height, width) = self.window.getmaxyx()
         self.window.addstr(0,0, "EIOM Pri Section\tPackage\tInst.ver\tAvail.ver\tDescription")
         self.add_list(self.list_model, 0, 1)
-        self.window.refresh()
-
+        self.pad.refresh()
+            
     def get_attribute(self, row):
-        if (row == self.selected):
+        if (row == self.selectedEntry):
             attribute = curses.A_REVERSE
         else:
             attribute = curses.A_NORMAL
@@ -117,6 +119,14 @@ class ListView:
         self.pad.addstr(y, x + 2 * line_length + 2 + len(title), line_end * " ",
             attribute)
 
+    def move_up(self):
+        if (self.selectedEntry > 0):
+            self.selectedEntry = self.selectedEntry - 1
+
+    def move_down(self):
+        self.selectedEntry = self.selectedEntry + 1
+
+
 class ListModel:
 
     def __init__(self):
@@ -138,21 +148,21 @@ class DetailsView:
 
         self.details_model = None
 
-    def update(self):
+    def paint(self):
         (height, width) = self.window.getmaxyx()
                
         if self.details_model:
             self.window.addstr(0,0, self.details_model.name)
             # TODO: Only show this when there is more to display
             self.window.addstr(height - 1, 0, "press d for more.")
-            self.update_summary(height, width)
+            self.paint_summary(height, width)
 
-    def update_summary(self, height, width):
+    def paint_summary(self, height, width):
         self.details_pad.addstr(0, 0, "%s - %s" % (self.details_model.name,
             self.details_model.summary), curses.A_BOLD)
         self.details_pad.addstr(2, 0, self.details_model.description)
 
-    def update_full(self, height, width):
+    def paint_full(self, height, width):
         self.details_pad.addstr(0,0, "Name: %s" % self.details_model.name)
         self.details_pad.addstr(1,0,
             "Version: %s" % self.details_model.version)
