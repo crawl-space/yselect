@@ -21,6 +21,8 @@ import curses
 
 import menu
 
+__revision__ = "$Rev$"
+
 class PackageView:
 
     def __init__(self, window):
@@ -84,6 +86,7 @@ class ListView(menu.Menu):
         return attribute
 
     def add_list(self, list_model, row, depth):
+        # FIXME: Too much duplicated code and nastiness
         attribute = self.get_attribute(row)
         self.add_menu_title(row, 5, list_model.title, depth, attribute)
         for i in range(len(list_model.packages)):
@@ -124,7 +127,8 @@ class ListView(menu.Menu):
             self.selectedEntry = self.selectedEntry - 1
 
     def move_down(self):
-        self.selectedEntry = self.selectedEntry + 1
+        if (self.selectedEntry < self.list_model.getLength() - 1):
+            self.selectedEntry = self.selectedEntry + 1
 
 
 class ListModel:
@@ -136,7 +140,17 @@ class ListModel:
     def addSubList(self, sub_list):
         self.packages.append(sub_list)
 
+    def getLength(self):
+        """ Return the length of the list including sublists. """
+        length = 1 # Include the title.
+        for entry in self.packages:
+            if entry.__class__ == ListModel:
+                length = length + entry.getLength()
+            else:
+                length = length + 1
+        return length
 
+                
 class DetailsView:
 
     def __init__(self, window):
