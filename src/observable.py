@@ -40,7 +40,7 @@ class Observable:
     def emit_signal(self, signal_name):
         observers = self.signals[signal_name]
         for observer in observers:
-            observer.notify(self)
+            observer.notify(self, signal_name)
 
 class NoSuchSignalException(Exception):
-    pass
+   "No such signal exists." 

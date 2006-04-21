@@ -55,8 +55,12 @@ class MainApplication:
             char = screen.getch()
             currentMenu.handle_input(char)
 
-    def notify(self, observable):
-        self.do_quit = True
+    def notify(self, observable, signal_name):
+        if signal_name == "quit":
+            self.do_quit = True
+        else:
+            assert False, \
+                "Recieved a notification for a signal we didn't know about."
 
 
 def main(screen):

@@ -101,7 +101,7 @@ class MainMenu(menu.Menu):
             "or digits;\n" + \
             "Press <enter> to confirm selection.  ^L redraws screen."
         self.copyright = \
-            "Version %s.\n" + \
+            "Version %s (noarch).\n" + \
             "Copyright (C) 2006 Devan Goodwin.\n" + \
             "Copyright (C) 2006 James Bowes.\n" + \
             "This is free software; see the GNU General Public Licence " + \

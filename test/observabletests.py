@@ -70,6 +70,19 @@ class ObservableTests(unittest.TestCase):
 
         self.assertTrue(observer.been_notified)
 
+    def testEmitManySignals(self):
+       observer = TestObserver()
+
+       self.observable.register_signal("meow")
+       self.observable.add_observer("bark", observer)
+       self.observable.emit_signal("meow")
+
+       self.assertFalse(observer.been_notified)
+
+       self.observable.emit_signal("bark")
+       self.assertTrue(observer.been_notified)
+
+
 class TestObservable(observable.Observable):
     
     def __init__(self):
@@ -82,7 +95,7 @@ class TestObserver:
     def __init__(self):
         self.been_notified = False
 
-    def notify(self, observable):
+    def notify(self, observable, signal_name):
         self.been_notified = True
 
 
