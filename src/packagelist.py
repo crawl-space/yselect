@@ -34,10 +34,11 @@ class PackageView:
         list_model = ListModel()
         list_model.addSubList(ListModel())
 
-        self.list_window = ListView(window.derwin(1, 0), list_model)
-        self.details_window = DetailsView(window.derwin(height / 2, 0))
-        self.details_window.setModel(DetailsModel())
+        details_height = (height - 1) / 2
 
+        self.list_window = ListView(window.derwin(height - details_height, width, 1, 0), list_model)
+        self.details_window = DetailsView(window.derwin(details_height, width, height - details_height, 0))
+        self.details_window.setModel(DetailsModel())
 
     def paint(self):
         self.list_window.paint()
@@ -65,12 +66,18 @@ class ListView(menu.Menu):
         
         self.window = window
         self.window.bkgd(" ", curses.color_pair(2))
-        padwin = self.window.derwin(1,0)
-        self.pad = padwin
+        (height, width) = self.window.getmaxyx()
+        
+        self.pad = self.window.derwin(height - 1, width, 1, 0)
         self.pad.bkgd(" ", curses.color_pair(0))
 
         self.list_model = list_model
         self.selectedEntry = 3
+
+        (y, x) = self.pad.getmaxyx()
+
+        self.scroll_top = 0
+        self.scroll_bottom = y - 2
 
     def paint(self):
         (height, width) = self.window.getmaxyx()
@@ -87,19 +94,17 @@ class ListView(menu.Menu):
 
     def add_list(self, list_model, row, depth):
         # FIXME: Too much duplicated code and nastiness
-        attribute = self.get_attribute(row)
-        self.add_menu_title(row, 5, list_model.title, depth, attribute)
+        if (row >= self.scroll_top and row <= self.scroll_bottom):
+            attribute = self.get_attribute(row)
+            self.add_menu_title(row - self.scroll_top, 5, list_model.title, depth, attribute)
         for i in range(len(list_model.packages)):
             entry = list_model.packages[i]
+            draw_row = i + row + 1
             if entry.__class__ == ListModel:
-                self.add_list(entry, i + row + 1, 2)
+                self.add_list(entry, draw_row, depth + 1)
             else:
-                (y, x) = self.pad.getmaxyx()
-                format_string = "%%-%ds" % x 
-                pkg_string = format_string % list_model.packages[i]
-                attribute = self.get_attribute(i + row + 1)
-                self.pad.addstr(i + row + 1, 0, pkg_string,
-                    attribute)
+                if (draw_row >= self.scroll_top and draw_row <= self.scroll_bottom):
+                    self.add_menu_package(draw_row, entry)
 
     def add_menu_title(self, y, x, title, depth, attribute):
         """
@@ -122,20 +127,36 @@ class ListView(menu.Menu):
         self.pad.addstr(y, x + 2 * line_length + 2 + len(title), line_end * " ",
             attribute)
 
+    def add_menu_package(self, cur_y, package):
+        """ Draw a package line in the menu. """
+        (max_y, max_x) = self.pad.getmaxyx()
+        format_string = "%%-%ds" % max_x 
+        pkg_string = format_string % package
+        attribute = self.get_attribute(cur_y)
+        self.pad.addstr(cur_y - self.scroll_top, 0, pkg_string, attribute)
+        
     def move_up(self):
         if (self.selectedEntry > 0):
             self.selectedEntry = self.selectedEntry - 1
 
+            if (self.selectedEntry < self.scroll_top):
+                self.scroll_top = self.scroll_top - 1
+                self.scroll_bottom = self.scroll_bottom - 1
+                
     def move_down(self):
         if (self.selectedEntry < self.list_model.getLength() - 1):
             self.selectedEntry = self.selectedEntry + 1
+
+            if (self.selectedEntry > self.scroll_bottom):
+                self.scroll_top = self.scroll_top + 1
+                self.scroll_bottom = self.scroll_bottom + 1
 
 
 class ListModel:
 
     def __init__(self):
         self.title = "All Packages"
-        self.packages = ['pkg1', 'pkg2', 'pkgz', 'pkg5']
+        self.packages = ['pkg1', 'pkg2', 'pkgz', 'pkg5', 'pkg6', 'kptw']
 
     def addSubList(self, sub_list):
         self.packages.append(sub_list)
