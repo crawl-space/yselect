@@ -153,5 +153,6 @@ class MainMenu(menu.Menu):
                 if key == ord(entry.shortcut_key):
                     self.selectedEntry = self.model.entries.index(entry)
                     handled = True
+                    break
 
         return handled

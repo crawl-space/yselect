@@ -35,10 +35,14 @@ class Menu:
 
         handled = True
         
+        # 16 is CTRL+p
         if char == curses.KEY_UP or char == ord('k') or char == 16:
             self.move_up()
+        # 14 is CTRL+n    
         elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
             self.move_down()
+        # 10 is another 'ENTER' or return key or whatever. I needed it for my
+        # keyboard.
         elif char == curses.KEY_ENTER or char == 10:
             self.select_current()
         else:
