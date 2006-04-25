@@ -79,9 +79,26 @@ class ListView(menu.Menu):
         self.scroll_top = 0
         self.scroll_bottom = y - 2
 
+        self.EIOM_col_start = 0
+        self.priority_col_start = 5
+        self.section_col_start = 9
+        self.package_col_start = 18
+        self.installed_col_start = 31
+        self.available_col_start = 43
+        self.description_col_start = 55
+        
+        self.EIOM_col_width = 4
+        self.priority_col_width = 3
+        self.section_col_width = 8
+        self.package_col_width = 12
+        self.installed_col_width = 11
+        self.available_col_width = 11
+
+        self.description_col_width = x - self.description_col_start
+
     def paint(self):
         (height, width) = self.window.getmaxyx()
-        self.window.addstr(0,0, "EIOM Pri Section\tPackage\tInst.ver\tAvail.ver\tDescription")
+        self.window.addstr(0,0, "EIOM Pri Section  Package      Inst.ver    Avail.ver   Description")
         self.add_list(self.list_model, 0, 1)
         self.pad.refresh()
             
@@ -94,6 +111,7 @@ class ListView(menu.Menu):
 
     def add_list(self, list_model, row, depth):
         # FIXME: Too much duplicated code and nastiness
+        # Could use a generator here to provide items in the list.
         if (row >= self.scroll_top and row <= self.scroll_bottom):
             attribute = self.get_attribute(row)
             self.add_menu_title(row - self.scroll_top, 5, list_model.title, depth, attribute)
@@ -131,7 +149,7 @@ class ListView(menu.Menu):
         """ Draw a package line in the menu. """
         (max_y, max_x) = self.pad.getmaxyx()
         format_string = "%%-%ds" % max_x 
-        pkg_string = format_string % package
+        pkg_string = format_string % package.name
         attribute = self.get_attribute(cur_y)
         self.pad.addstr(cur_y - self.scroll_top, 0, pkg_string, attribute)
         
@@ -144,7 +162,7 @@ class ListView(menu.Menu):
                 self.scroll_bottom = self.scroll_bottom - 1
                 
     def move_down(self):
-        if (self.selectedEntry < self.list_model.getLength() - 1):
+        if (self.selectedEntry < self.list_model.length - 1):
             self.selectedEntry = self.selectedEntry + 1
 
             if (self.selectedEntry > self.scroll_bottom):
@@ -156,21 +174,22 @@ class ListModel:
 
     def __init__(self):
         self.title = "All Packages"
-        self.packages = ['pkg1', 'pkg2', 'pkgz', 'pkg5', 'pkg6', 'kptw']
+        self.packages = [DetailsModel(), DetailsModel()]
 
     def addSubList(self, sub_list):
         self.packages.append(sub_list)
 
-    def getLength(self):
+    def __getLength(self):
         """ Return the length of the list including sublists. """
         length = 1 # Include the title.
         for entry in self.packages:
             if entry.__class__ == ListModel:
-                length = length + entry.getLength()
+                length = length + entry.__getLength()
             else:
                 length = length + 1
         return length
 
+    length = property(__getLength)
                 
 class DetailsView:
 
