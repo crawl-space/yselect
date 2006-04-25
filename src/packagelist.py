@@ -148,11 +148,21 @@ class ListView(menu.Menu):
     def add_menu_package(self, cur_y, package):
         """ Draw a package line in the menu. """
         (max_y, max_x) = self.pad.getmaxyx()
-        format_string = "%%-%ds" % max_x 
-        pkg_string = format_string % package.name
+        format_string = self.__make_package_format_string() 
+        pkg_string = format_string % \
+            ("", "", "", package.name, package.version, "", package.summary)
         attribute = self.get_attribute(cur_y)
         self.pad.addstr(cur_y - self.scroll_top, 0, pkg_string, attribute)
-        
+       
+    def __make_package_format_string(self):
+        # Fill in the correct amounts to pad each column on the right with.
+        format_string = "%%-%ds %%-%ds %%-%ds %%-%ds %%-%ds %%-%ds %%-%ds" % \
+            (self.EIOM_col_width, self.priority_col_width, \
+            self.section_col_width, self.package_col_width, \
+            self.installed_col_width, self.available_col_width, \
+            self.description_col_width)
+        return format_string
+            
     def move_up(self):
         if (self.selectedEntry > 0):
             self.selectedEntry = self.selectedEntry - 1
