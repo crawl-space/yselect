@@ -150,17 +150,22 @@ class ListView(menu.Menu):
         (max_y, max_x) = self.pad.getmaxyx()
         format_string = self.__make_package_format_string() 
         pkg_string = format_string % \
-            ("", "", "", package.name, package.version, "", package.summary)
+            ("", "", package.section, package.name, package.version,
+            package.avail_version, package.summary)
         attribute = self.get_attribute(cur_y)
         self.pad.addstr(cur_y - self.scroll_top, 0, pkg_string, attribute)
        
     def __make_package_format_string(self):
         # Fill in the correct amounts to pad each column on the right with.
-        format_string = "%%-%ds %%-%ds %%-%ds %%-%ds %%-%ds %%-%ds %%-%ds" % \
-            (self.EIOM_col_width, self.priority_col_width, \
-            self.section_col_width, self.package_col_width, \
-            self.installed_col_width, self.available_col_width, \
-            self.description_col_width)
+        format_string = "%%-%d.%ds %%-%d.%ds %%-%d.%ds %%-%d.%ds %%-%d.%ds " \
+            "%%-%d.%ds %%-%d.%ds" % \
+            (self.EIOM_col_width, self.EIOM_col_width,
+            self.priority_col_width, self.priority_col_width, 
+            self.section_col_width, self.section_col_width,
+            self.package_col_width, self.package_col_width,
+            self.installed_col_width, self.installed_col_width,
+            self.available_col_width, self.available_col_width, 
+            self.description_col_width, self.description_col_width)
         return format_string
             
     def move_up(self):
@@ -246,7 +251,10 @@ class DetailsModel:
     def __init__(self):
         self.name = "fizzle"
         self.version = "1.2.45"
+        self.section = "System/Base"
         self.release = "4"
+        self.avail_version = "1.2.45"
+        self.avail_release = "5"
         self.arch = "i386"
         self.summary = "the jozzlebazzer phanf."
         self.description = "Jozzlebaz\nflark! phanf."
