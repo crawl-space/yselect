@@ -18,7 +18,7 @@
 #   02110-1301  USA
 
 import unittest
-import alltests
+import settestpath
 
 import mainmenu
 
@@ -53,11 +53,7 @@ class MainMenuModelTests(unittest.TestCase):
 
 
 def suite():
-    result = unittest.TestSuite()
-    # TODO: Shouldn't have to manually add all test classes:
-    result.addTest(unittest.makeSuite(MainMenuModelTests))
-    return result
-
+    return unittest.makeSuite(MainMenuModelTests)
 
 if __name__ == "__main__":
     unittest.main(defaultTest="suite")

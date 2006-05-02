@@ -22,7 +22,7 @@ Tests for the observable class.
 """
 
 import unittest
-import alltests
+import settestpath
 
 import observable
 
@@ -100,12 +100,7 @@ class TestObserver:
 
 
 def suite():
-    result = unittest.TestSuite()
-    # TODO: Shouldn't have to manually add all test classes:
-    result.addTest(unittest.makeSuite(ObservableTests))
-    return result
-
+    return unittest.makeSuite(ObservableTests)
 
 if __name__ == "__main__":
     unittest.main(defaultTest="suite")
-

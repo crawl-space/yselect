@@ -29,16 +29,8 @@ import observabletests
 import mainmenutests
 
 def suite():
-    result = unittest.TestSuite()
-
-    # Must add all modules here at this point in time
-    # TODO: Find a way to search these out:
-    result.addTest(yselectTests.suite())
-    result.addTest(observabletests.suite())
-    result.addTest(mainmenutests.suite())
-
-    return result
+    return unittest.TestSuite((yselectTests.suite(), observabletests.suite(),
+        mainmenutests.suite()))
 
 if __name__ == "__main__":
     unittest.main(defaultTest="suite")
-

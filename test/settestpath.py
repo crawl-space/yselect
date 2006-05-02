@@ -1,6 +1,5 @@
 #   yselect - An RPM/Yum package handling frontend.
 #   Copyright (C) 2006 James Bowes <jbowes@redhat.com> 
-#   Copyright (C) 2006 Devan Goodwin <dg@fnordia.org>
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -17,20 +16,10 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #   02110-1301  USA
 
-import unittest
-import settestpath
+import sys
 
-class NotARealTestSuite(unittest.TestCase):
+# Adjust path so we can see the src modules running from branch as well
+# as test dir:
+sys.path.append('./src/')
+sys.path.append('../src/')
 
-    def testSomething(self):
-        pass
-
-    def testSomethingElse(self):
-        pass
-
-
-def suite():
-    return unittest.makeSuite(NotARealTestSuite)
-
-if __name__ == "__main__":
-    unittest.main(defaultTest="suite")
