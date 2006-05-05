@@ -17,6 +17,8 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #   02110-1301  USA
 
+""" Abstract menu object class. """
+
 import curses
 
 __revision__ = "$Rev$"
@@ -81,9 +83,9 @@ class Menu:
         """
         raise NotImplementedError
 
-	def select_current(self):
-		"""
-		Act upon the currently selected menu item.
-		"""
-		raise NotImplementedError
+    def select_current(self):
+        """
+        Act upon the currently selected menu item.
+        """
+        raise NotImplementedError
 

@@ -17,6 +17,8 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #   02110-1301  USA
 
+""" yselect's main menu. """
+
 import curses
 
 import menu
@@ -25,17 +27,15 @@ import observable
 __revision__ = "$Rev$"
 
 class MenuEntry:
+
     """
     Object representation of a menu entry.
     """
 
-    # TODO: Remove default method None:
-    def __init__(self, action, display, description, execute_method,
-        shortcut_key):
+    def __init__(self, action, display, description, shortcut_key):
         self.action = action
         self.action_display = display
         self.description = description
-        self.execute_method = execute_method
         self.shortcut_key = shortcut_key
 
 
@@ -50,20 +50,21 @@ class MainMenuModel(observable.Observable):
         
         self.entries = []
         self.entries.append(MenuEntry("update", "[U]pdate",
-            "Update list of available packages, if possible.", None, 'u'))
+            "Update list of available packages, if possible.", 'u'))
         self.entries.append(MenuEntry("select", "[S]elect",
-            "Request which packages you want on your system.", None, 's'))
+            "Request which packages you want on your system.", 's'))
         self.entries.append(MenuEntry("install", "[I]nstall",
-            "Install and upgrade wanted packages.", None, 'i'))
+            "Install and upgrade wanted packages.", 'i'))
         self.entries.append(MenuEntry("remove", "[R]emove",
-            "Remove unwanted software.", None, 'r'))
+            "Remove unwanted software.", 'r'))
         self.entries.append(MenuEntry("quit", "[Q]uit",
-                "Quit %s." % (program_name), None, 'q'))
+            "Quit %s." % (program_name), 'q'))
 
         for entry in self.entries:
             self.register_signal(entry.action)
         
     def select(self, selection):
+        """ Select the entry at selection. """
         if (selection < 0 or selection > len(self.entries)):
             raise IndexError
         self.emit_signal(self.entries[selection].action)
@@ -143,9 +144,11 @@ class MainMenu(menu.Menu):
         self.stdscr.addstr(x_pos, 0, self.copyright)
 
     def select_current(self):
+        """ Select the currently highlighted entry. """
         self.model.select(self.selectedEntry)
 
     def handle_input(self, key):
+        """ React to keyboard input. """
         #Try Super's implementation first.
         handled = menu.Menu.handle_input(self, key)
         if not handled:

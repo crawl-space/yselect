@@ -21,16 +21,28 @@
 Base class implementing observer pattern.
 """
 
+__revision__ = "$Rev$"
+
 class Observable:
 
+    """Abstract class for objects implementing the 'Pub' of 'Pub/Sub. """
+    
     def __init__(self):
         self.signals = {}
 
     def register_signal(self, signal_name):
+        """ Register a new signal for this object to emit. """
         if not self.signals.has_key(signal_name):
             self.signals[signal_name] = []
 
     def add_observer(self, signal_name, observer):
+        """
+        Add an observer of the given signal to this object.
+
+        signal_name is the name of an already registered signal on this object.
+        Raises a NoSuchSignalException if signal_name is not registered on this
+        object.
+        """
         if not self.signals.has_key(signal_name):
             raise NoSuchSignalException
         signal_observers = self.signals[signal_name]
@@ -38,9 +50,10 @@ class Observable:
             self.signals[signal_name].append(observer)
 
     def emit_signal(self, signal_name):
+        """ Emit the signal identified by signal_name. """
         observers = self.signals[signal_name]
         for observer in observers:
             observer.notify(self, signal_name)
 
 class NoSuchSignalException(Exception):
-   "No such signal exists." 
+    "No such signal exists." 

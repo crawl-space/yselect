@@ -17,6 +17,8 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #   02110-1301  USA
 
+""" List of packages display. """
+
 import curses
 
 import menu
@@ -25,6 +27,8 @@ __revision__ = "$Rev$"
 
 class PackageView:
 
+    """ Window for displaying the package list and details. """
+    
     def __init__(self, window):
         self.window = window
         self.window.bkgd(" ", curses.color_pair(1))
@@ -32,7 +36,7 @@ class PackageView:
         (height, width) = self.window.getmaxyx()
 
         list_model = ListModel()
-        list_model.addSubList(ListModel())
+        list_model.add_sub_list(ListModel())
 
         details_height = (height - 1) / 2
 
@@ -43,15 +47,15 @@ class PackageView:
         self.details_window.model = DetailsModel()
 
     def paint(self):
+        """ Draw the package view onscreen. """
         self.list_window.paint()
         self.details_window.paint()
 
-        (height, width) = self.window.getmaxyx()
-
-        self.window.addstr(0, 0, "yselect - inspection of package states (avail., priority)")
+        self.window.addstr(0, 0, 
+            "yselect - inspection of package states (avail., priority)")
 
     def run(self):
-
+        """ Run the package view main loop. """
         while True:
             self.paint()
             char = self.window.getch()
@@ -63,6 +67,8 @@ class PackageView:
 
 class ListView(menu.Menu):
 
+    """ Displays a list of packages. """
+    
     def __init__(self, window, list_model):
         menu.Menu.__init__(self)
         
@@ -76,10 +82,10 @@ class ListView(menu.Menu):
         self.list_model = list_model
         self.selectedEntry = 3
 
-        (y, x) = self.pad.getmaxyx()
+        (height, width) = self.pad.getmaxyx()
 
         self.scroll_top = 0
-        self.scroll_bottom = y - 2
+        self.scroll_bottom = height - 2
 
         self.EIOM_col_start = 0
         self.priority_col_start = 5
@@ -96,22 +102,29 @@ class ListView(menu.Menu):
         self.installed_col_width = 11
         self.available_col_width = 11
 
-        self.description_col_width = x - self.description_col_start
+        self.description_col_width = width - self.description_col_start
 
     def paint(self):
-        (height, width) = self.window.getmaxyx()
-        self.window.addstr(0,0, "EIOM Pri Section  Package      Inst.ver    Avail.ver   Description")
-        self.__add_list(self.list_model, 0, 1)
+        """ Draw the list on screen. """
+        self.window.addstr(0, 0, "EIOM Pri Section  Package      " + \
+                "Inst.ver    Avail.ver   Description")
+        self.__paint_list(self.list_model, 0, 1)
         self.pad.refresh()
             
     def __get_attribute(self, row):
+        """
+        Determine if row is the selected_entry or not.
+
+        Return the appropriate curses attribute.
+        """
         if (row == self.selectedEntry):
             attribute = curses.A_REVERSE
         else:
             attribute = curses.A_NORMAL
         return attribute
 
-    def __add_list(self, list_model, row, depth):
+    def __paint_list(self, list_model, row, depth):
+        """ Draw a list on the screen. """
         # FIXME: Too much duplicated code and nastiness
         # Could use a generator here to provide items in the list.
         if (row >= self.scroll_top and row <= self.scroll_bottom):
@@ -122,12 +135,13 @@ class ListView(menu.Menu):
             entry = list_model.packages[i]
             draw_row = i + row + 1
             if entry.__class__ == ListModel:
-                self.__add_list(entry, draw_row, depth + 1)
+                self.__paint_list(entry, draw_row, depth + 1)
             else:
-                if (draw_row >= self.scroll_top and draw_row <= self.scroll_bottom):
+                if (draw_row >= self.scroll_top and
+                    draw_row <= self.scroll_bottom):
                     self.__add_menu_package(draw_row, entry)
 
-    def __add_menu_title(self, y, x, title, depth, attribute):
+    def __add_menu_title(self, cur_y, cur_x, title, depth, attribute):
         """
         Draw a menu title on the screen.
 
@@ -136,21 +150,20 @@ class ListView(menu.Menu):
         """
         line_length = depth * 2 - 1
        
-        self.pad.addstr(y, 0, x * " ", attribute) 
-        self.pad.hline(y, x, curses.ACS_HLINE, line_length, attribute)
-        self.pad.addstr(y, x + line_length, " %s " % title, curses.A_BOLD
-            and attribute)
-        self.pad.hline(y, x + line_length + 2 + len(title), curses.ACS_HLINE,
-            line_length, attribute)
+        self.pad.addstr(cur_y, 0, cur_x * " ", attribute) 
+        self.pad.hline(cur_y, cur_x, curses.ACS_HLINE, line_length, attribute)
+        self.pad.addstr(cur_y, cur_x + line_length, " %s " % title,
+            curses.A_BOLD and attribute)
+        self.pad.hline(cur_y, cur_x + line_length + 2 + len(title),
+            curses.ACS_HLINE, line_length, attribute)
         
         (max_y, max_x) = self.pad.getmaxyx()
-        line_end = max_x - (x + 2 * line_length + 2 + len(title))
-        self.pad.addstr(y, x + 2 * line_length + 2 + len(title), line_end * " ",
-            attribute)
+        line_end = max_x - (cur_x + 2 * line_length + 2 + len(title))
+        self.pad.addstr(cur_y, cur_x + 2 * line_length + 2 + len(title),
+            line_end * " ", attribute)
 
     def __add_menu_package(self, cur_y, package):
         """ Draw a package line in the menu. """
-        (max_y, max_x) = self.pad.getmaxyx()
         format_string = self.__make_package_format_string() 
         pkg_string = format_string % \
             ("", "", package.section, package.name, package.version,
@@ -159,7 +172,9 @@ class ListView(menu.Menu):
         self.pad.addstr(cur_y - self.scroll_top, 0, pkg_string, attribute)
        
     def __make_package_format_string(self):
-        # Fill in the correct amounts to pad each column on the right with.
+        """
+        Fill in the correct amounts to pad each column on the right with.
+        """
         format_string = "%%-%d.%ds %%-%d.%ds %%-%d.%ds %%-%d.%ds %%-%d.%ds " \
             "%%-%d.%ds %%-%d.%ds" % \
             (self.EIOM_col_width, self.EIOM_col_width,
@@ -172,6 +187,7 @@ class ListView(menu.Menu):
         return format_string
             
     def move_up(self):
+        """ Move the selection up one entry. """
         if (self.selectedEntry > 0):
             self.selectedEntry = self.selectedEntry - 1
 
@@ -180,6 +196,7 @@ class ListView(menu.Menu):
                 self.scroll_bottom = self.scroll_bottom - 1
                 
     def move_down(self):
+        """ Move the selection down one entry. """
         if (self.selectedEntry < self.list_model.length - 1):
             self.selectedEntry = self.selectedEntry + 1
 
@@ -190,27 +207,32 @@ class ListView(menu.Menu):
 
 class ListModel:
 
+    """ Model of a list of packages. """
+    
     def __init__(self):
         self.title = "All Packages"
         self.packages = [DetailsModel(), DetailsModel()]
 
-    def addSubList(self, sub_list):
+    def add_sub_list(self, sub_list):
+        """ Add a sub list to this list. """
         self.packages.append(sub_list)
 
-    def __getLength(self):
+    def __get_length(self):
         """ Return the length of the list including sublists. """
         length = 1 # Include the title.
         for entry in self.packages:
             if entry.__class__ == ListModel:
-                length = length + entry.__getLength()
+                length = length + entry.__get_length()
             else:
                 length = length + 1
         return length
 
-    length = property(__getLength)
+    length = property(__get_length)
                 
 class DetailsView:
 
+    """ Class for displaying package details. """
+    
     def __init__(self, window):
         self.window = window
         self.window.bkgd(" ", curses.color_pair(2))
@@ -221,33 +243,38 @@ class DetailsView:
         self.model = None
 
     def paint(self):
+        """ Draw the DetailsView on screen. """
         (height, width) = self.window.getmaxyx()
                
         if self.model:
-            self.window.addstr(0,0, self.model.name)
+            self.window.addstr(0, 0, self.model.name)
             # TODO: Only show this when there is more to display
             self.window.addstr(height - 1, 0, "press d for more.")
-            self.paint_summary(height, width)
+            self.paint_summary()
 
-    def paint_summary(self, height, width):
+    def paint_summary(self):
+        """ Draw the package details summary line. """
         self.details_pad.addstr(0, 0, "%s - %s" % (self.model.name,
             self.model.summary), curses.A_BOLD)
         self.details_pad.addstr(2, 0, self.model.description)
 
-    def paint_full(self, height, width):
-        self.details_pad.addstr(0,0, "Name: %s" % self.model.name)
-        self.details_pad.addstr(1,0,
+    def paint_full(self):
+        """ Draw the package's full details. """
+        self.details_pad.addstr(0, 0, "Name: %s" % self.model.name)
+        self.details_pad.addstr(1, 0,
             "Version: %s" % self.model.version)
-        self.details_pad.addstr(2,0,
+        self.details_pad.addstr(2, 0,
             "Release: %s" % self.model.release)
-        self.details_pad.addstr(3,0,
+        self.details_pad.addstr(3, 0,
             "Architecture: %s" % self.model.arch)
-        self.details_pad.addstr(4,0,
+        self.details_pad.addstr(4, 0,
             "Details: %s" % self.model.description)
 
 
 class DetailsModel:
 
+    """ A model of package details. """
+    
     def __init__(self):
         self.name = "fizzle"
         self.version = "1.2.45"
@@ -261,9 +288,10 @@ class DetailsModel:
 
 
 def main(window):
+    """ Run the package list. """
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLUE)
-    packageView = PackageView(window)
-    packageView.run()
+    package_view = PackageView(window)
+    package_view.run()
 
 curses.wrapper(main)

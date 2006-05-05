@@ -45,17 +45,18 @@ class MainApplication:
 		"""
 
 		# Start out with the main menu:
-        currentMenu = mainmenu.MainMenu(screen, program_name, program_version)
+        current_menu = mainmenu.MainMenu(screen, program_name, program_version)
 
-        currentMenu.model.add_observer("quit", self)
+        current_menu.model.add_observer("quit", self)
 
         while not self.do_quit:
-            currentMenu.paint()
+            current_menu.paint()
             
             char = screen.getch()
-            currentMenu.handle_input(char)
+            current_menu.handle_input(char)
 
     def notify(self, observable, signal_name):
+        """ Respond to changes from user input. """
         if signal_name == "quit":
             self.do_quit = True
         else:
@@ -64,6 +65,7 @@ class MainApplication:
 
 
 def main(screen):
+    """ Main yselect function. """
     yselect = MainApplication()
     yselect.run(screen)
 
