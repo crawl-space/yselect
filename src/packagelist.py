@@ -36,9 +36,11 @@ class PackageView:
 
         details_height = (height - 1) / 2
 
-        self.list_window = ListView(window.derwin(height - details_height, width, 1, 0), list_model)
-        self.details_window = DetailsView(window.derwin(details_height, width, height - details_height, 0))
-        self.details_window.setModel(DetailsModel())
+        self.list_window = ListView(window.derwin(height - details_height,
+            width, 1, 0), list_model)
+        self.details_window = DetailsView(window.derwin(details_height, width,
+            height - details_height, 0))
+        self.details_window.model = DetailsModel()
 
     def paint(self):
         self.list_window.paint()
@@ -99,32 +101,33 @@ class ListView(menu.Menu):
     def paint(self):
         (height, width) = self.window.getmaxyx()
         self.window.addstr(0,0, "EIOM Pri Section  Package      Inst.ver    Avail.ver   Description")
-        self.add_list(self.list_model, 0, 1)
+        self.__add_list(self.list_model, 0, 1)
         self.pad.refresh()
             
-    def get_attribute(self, row):
+    def __get_attribute(self, row):
         if (row == self.selectedEntry):
             attribute = curses.A_REVERSE
         else:
             attribute = curses.A_NORMAL
         return attribute
 
-    def add_list(self, list_model, row, depth):
+    def __add_list(self, list_model, row, depth):
         # FIXME: Too much duplicated code and nastiness
         # Could use a generator here to provide items in the list.
         if (row >= self.scroll_top and row <= self.scroll_bottom):
-            attribute = self.get_attribute(row)
-            self.add_menu_title(row - self.scroll_top, 5, list_model.title, depth, attribute)
+            attribute = self.__get_attribute(row)
+            self.__add_menu_title(row - self.scroll_top, 5, list_model.title,
+                depth, attribute)
         for i in range(len(list_model.packages)):
             entry = list_model.packages[i]
             draw_row = i + row + 1
             if entry.__class__ == ListModel:
-                self.add_list(entry, draw_row, depth + 1)
+                self.__add_list(entry, draw_row, depth + 1)
             else:
                 if (draw_row >= self.scroll_top and draw_row <= self.scroll_bottom):
-                    self.add_menu_package(draw_row, entry)
+                    self.__add_menu_package(draw_row, entry)
 
-    def add_menu_title(self, y, x, title, depth, attribute):
+    def __add_menu_title(self, y, x, title, depth, attribute):
         """
         Draw a menu title on the screen.
 
@@ -145,14 +148,14 @@ class ListView(menu.Menu):
         self.pad.addstr(y, x + 2 * line_length + 2 + len(title), line_end * " ",
             attribute)
 
-    def add_menu_package(self, cur_y, package):
+    def __add_menu_package(self, cur_y, package):
         """ Draw a package line in the menu. """
         (max_y, max_x) = self.pad.getmaxyx()
         format_string = self.__make_package_format_string() 
         pkg_string = format_string % \
             ("", "", package.section, package.name, package.version,
             package.avail_version, package.summary)
-        attribute = self.get_attribute(cur_y)
+        attribute = self.__get_attribute(cur_y)
         self.pad.addstr(cur_y - self.scroll_top, 0, pkg_string, attribute)
        
     def __make_package_format_string(self):
@@ -215,35 +218,32 @@ class DetailsView:
         self.details_pad = self.window.derwin(height - 2, 0, 1, 0) 
         self.details_pad.bkgd(" ", curses.color_pair(0))
 
-        self.details_model = None
+        self.model = None
 
     def paint(self):
         (height, width) = self.window.getmaxyx()
                
-        if self.details_model:
-            self.window.addstr(0,0, self.details_model.name)
+        if self.model:
+            self.window.addstr(0,0, self.model.name)
             # TODO: Only show this when there is more to display
             self.window.addstr(height - 1, 0, "press d for more.")
             self.paint_summary(height, width)
 
     def paint_summary(self, height, width):
-        self.details_pad.addstr(0, 0, "%s - %s" % (self.details_model.name,
-            self.details_model.summary), curses.A_BOLD)
-        self.details_pad.addstr(2, 0, self.details_model.description)
+        self.details_pad.addstr(0, 0, "%s - %s" % (self.model.name,
+            self.model.summary), curses.A_BOLD)
+        self.details_pad.addstr(2, 0, self.model.description)
 
     def paint_full(self, height, width):
-        self.details_pad.addstr(0,0, "Name: %s" % self.details_model.name)
+        self.details_pad.addstr(0,0, "Name: %s" % self.model.name)
         self.details_pad.addstr(1,0,
-            "Version: %s" % self.details_model.version)
+            "Version: %s" % self.model.version)
         self.details_pad.addstr(2,0,
-            "Release: %s" % self.details_model.release)
+            "Release: %s" % self.model.release)
         self.details_pad.addstr(3,0,
-            "Architecture: %s" % self.details_model.arch)
+            "Architecture: %s" % self.model.arch)
         self.details_pad.addstr(4,0,
-            "Details: %s" % self.details_model.description)
-       
-    def setModel(self, details_model):
-        self.details_model = details_model
+            "Details: %s" % self.model.description)
 
 
 class DetailsModel:
