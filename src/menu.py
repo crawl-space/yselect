@@ -17,20 +17,62 @@
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #   02110-1301  USA
 
-""" Abstract menu object class. """
+""" Abstract menu object classes. """
 
 import curses
 
 __revision__ = "$Rev$"
 
-class MenuView:
-    """
-    Parent Menu class. Maintains a reference to the currently selected menu entry.
-    """
+class MenuModel:
+    
+    """ Abstract menu model class. """
 
     def __init__(self):
-        self.selectedEntry = 0
+        self.selected_entry = 0
         self.entries = []
+        pass
+
+    def move_up(self):
+        """
+        Move the menu cursor up one entry.
+
+        We only move up if we're not already at the top of the list.
+        If we are, we wrap to the bottom.
+        """
+        if self.selected_entry > 0:
+            self.selected_entry = self.selected_entry - 1
+        else:
+            self.selected_entry = len(self.entries) - 1
+
+    def move_down(self):
+        """
+        Move the menu cursor down an entry.
+
+        We only move if we're not already at the bottom of the list.
+        If we are, we wrap to the top.
+        """
+        if self.selected_entry < len(self.entries) - 1:
+            self.selected_entry = self.selected_entry + 1
+        else:
+            self.selected_entry = 0
+
+    def select_current(self):
+        """
+        Act upon the currently selected menu item.
+        """
+        raise NotImplementedError
+
+
+class MenuView:
+
+    """
+    Parent Menu view class. 
+    
+    Maintains a reference to the currently selected menu entry.
+    """
+
+    def __init__(self, model):
+        self.model = model
 
     def handle_input(self, char):
         """ React to the provided input. """
@@ -60,10 +102,10 @@ class MenuView:
         We only move up if we're not already at the top of the list. If we are,
         we wrap to the bottom.
         """
-        if self.selectedEntry > 0:
-            self.selectedEntry = self.selectedEntry - 1
+        if self.model.selected_entry > 0:
+            self.model.selected_entry = self.model.selected_entry - 1
         else:
-            self.selectedEntry = len(self.entries) - 1
+            self.model.selected_entry = len(self.model.entries) - 1
 
     def move_down(self):
         """
@@ -72,10 +114,10 @@ class MenuView:
         We only move if we're not already at the bottom of the list. If we are,
         we wrap to the top.
         """
-        if self.selectedEntry < len(self.entries) - 1:
-            self.selectedEntry = self.selectedEntry + 1
+        if self.model.selected_entry < len(self.model.entries) - 1:
+            self.model.selected_entry = self.model.selected_entry + 1
         else:
-            self.selectedEntry = 0
+            self.model.selected_entry = 0
 
     def paint(self):
         """
@@ -89,3 +131,31 @@ class MenuView:
         """
         raise NotImplementedError
 
+class MenuController:
+
+    """ Parent Menu Controller Class. """
+   
+    def __init__(self, model):
+        self.__model = model
+        pass
+   
+    def handle_input(self, char):
+        """ React to the provided input. """
+
+        handled = True
+        
+        # 16 is CTRL+p
+        if char == curses.KEY_UP or char == ord('k') or char == 16:
+            self.__model.move_up()
+        # 14 is CTRL+n    
+        elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
+            self.__model.move_down()
+        # 10 is another 'ENTER' or return key or whatever. I needed it for my
+        # keyboard.
+        elif char == curses.KEY_ENTER or char == 10:
+            self.__model.select_current()
+        else:
+            # We didn't handle the input.
+            handled = False
+
+        return handled

@@ -70,7 +70,7 @@ class ListView(menu.MenuView):
     """ Displays a list of packages. """
     
     def __init__(self, window, list_model):
-        menu.MenuView.__init__(self)
+        menu.MenuView.__init__(self, list_model)
         
         self.window = window
         self.window.bkgd(" ", curses.color_pair(2))
@@ -80,7 +80,7 @@ class ListView(menu.MenuView):
         self.pad.bkgd(" ", curses.color_pair(0))
 
         self.list_model = list_model
-        self.selectedEntry = 3
+        self.selected_entry = 3
 
         (height, width) = self.pad.getmaxyx()
 
@@ -117,7 +117,7 @@ class ListView(menu.MenuView):
 
         Return the appropriate curses attribute.
         """
-        if (row == self.selectedEntry):
+        if (row == self.selected_entry):
             attribute = curses.A_REVERSE
         else:
             attribute = curses.A_NORMAL
@@ -188,19 +188,19 @@ class ListView(menu.MenuView):
             
     def move_up(self):
         """ Move the selection up one entry. """
-        if (self.selectedEntry > 0):
-            self.selectedEntry = self.selectedEntry - 1
+        if (self.selected_entry > 0):
+            self.selected_entry = self.selected_entry - 1
 
-            if (self.selectedEntry < self.scroll_top):
+            if (self.selected_entry < self.scroll_top):
                 self.scroll_top = self.scroll_top - 1
                 self.scroll_bottom = self.scroll_bottom - 1
                 
     def move_down(self):
         """ Move the selection down one entry. """
-        if (self.selectedEntry < self.list_model.length - 1):
-            self.selectedEntry = self.selectedEntry + 1
+        if (self.selected_entry < self.list_model.length - 1):
+            self.selected_entry = self.selected_entry + 1
 
-            if (self.selectedEntry > self.scroll_bottom):
+            if (self.selected_entry > self.scroll_bottom):
                 self.scroll_top = self.scroll_top + 1
                 self.scroll_bottom = self.scroll_bottom + 1
 

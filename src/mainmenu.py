@@ -39,7 +39,7 @@ class MenuEntry:
         self.shortcut_key = shortcut_key
 
 
-class MainMenuModel(observable.Observable):
+class MainMenuModel(observable.Observable, menu.MenuModel):
 
     """
     yselect main menu data model.
@@ -47,8 +47,8 @@ class MainMenuModel(observable.Observable):
 
     def __init__(self, program_name):
         observable.Observable.__init__(self)
-        
-        self.entries = []
+        menu.MenuModel.__init__(self)
+
         self.entries.append(MenuEntry("update", "[U]pdate",
             "Update list of available packages, if possible.", 'u'))
         self.entries.append(MenuEntry("select", "[S]elect",
@@ -78,29 +78,17 @@ class MainMenu(menu.MenuView):
 
     def __init__(self, stdscr, program_name, program_version):
 
-        menu.MenuView.__init__(self)
+        menu.MenuView.__init__(self, MainMenuModel(program_name))
         self.stdscr = stdscr
 
         self.title = \
             "RPM/Yum `%s' package handling frontend." % (program_name)
 
-        self.model = MainMenuModel(program_name)
-
-        self.entries.append(MenuEntry("update", "[U]pdate",
-            "Update list of available packages, if possible.", 'u'))
-        self.entries.append(MenuEntry("select", "[S]elect",
-            "Request which packages you want on your system.", 's'))
-        self.entries.append(MenuEntry("install", "[I]nstall",
-            "Install and upgrade wanted packages.", 'i'))
-        self.entries.append(MenuEntry("remove", "[R]emove",
-            "Remove unwanted software.", 'r'))
-        self.entries.append(MenuEntry("quit", "[Q]uit",
-                "Quit %s." % (program_name), 'q'))
-
         self.navigation_info = \
             "Move around with ^P and ^N, cursor keys, initial letters, " + \
             "or digits;\n" + \
             "Press <enter> to confirm selection.  ^L redraws screen."
+
         self.copyright = \
             "Version %s (noarch).\n" + \
             "Copyright (C) 2006 Devan Goodwin.\n" + \
@@ -124,7 +112,7 @@ class MainMenu(menu.MenuView):
         i = 0
         for menu_entry in self.model.entries:
 
-            if menu_entry == self.model.entries[self.selectedEntry]:
+            if menu_entry == self.model.entries[self.model.selected_entry]:
                 prefix = " * "
                 format = curses.A_REVERSE
             else:
@@ -145,7 +133,7 @@ class MainMenu(menu.MenuView):
 
     def select_current(self):
         """ Select the currently highlighted entry. """
-        self.model.select(self.selectedEntry)
+        self.model.select(self.selected_entry)
 
     def handle_input(self, key):
         """ React to keyboard input. """
@@ -154,7 +142,7 @@ class MainMenu(menu.MenuView):
         if not handled:
             for entry in self.model.entries:
                 if key == ord(entry.shortcut_key):
-                    self.selectedEntry = self.model.entries.index(entry)
+                    self.model.selected_entry = self.model.entries.index(entry)
                     handled = True
                     break
 
