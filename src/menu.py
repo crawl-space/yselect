@@ -81,43 +81,19 @@ class MenuView:
         
         # 16 is CTRL+p
         if char == curses.KEY_UP or char == ord('k') or char == 16:
-            self.move_up()
+            self.model.move_up()
         # 14 is CTRL+n    
         elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
-            self.move_down()
+            self.model.move_down()
         # 10 is another 'ENTER' or return key or whatever. I needed it for my
         # keyboard.
         elif char == curses.KEY_ENTER or char == 10:
-            self.select_current()
+            self.model.select_current()
         else:
             # We didn't handle the input.
             handled = False
 
         return handled
-
-    def move_up(self):
-        """
-        Move the menu cursor up one entry.
-
-        We only move up if we're not already at the top of the list. If we are,
-        we wrap to the bottom.
-        """
-        if self.model.selected_entry > 0:
-            self.model.selected_entry = self.model.selected_entry - 1
-        else:
-            self.model.selected_entry = len(self.model.entries) - 1
-
-    def move_down(self):
-        """
-        Move the menu cursor down an entry.
-
-        We only move if we're not already at the bottom of the list. If we are,
-        we wrap to the top.
-        """
-        if self.model.selected_entry < len(self.model.entries) - 1:
-            self.model.selected_entry = self.model.selected_entry + 1
-        else:
-            self.model.selected_entry = 0
 
     def paint(self):
         """
@@ -125,11 +101,6 @@ class MenuView:
         """
         raise NotImplementedError
 
-    def select_current(self):
-        """
-        Act upon the currently selected menu item.
-        """
-        raise NotImplementedError
 
 class MenuController:
 

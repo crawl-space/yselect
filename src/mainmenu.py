@@ -62,7 +62,11 @@ class MainMenuModel(observable.Observable, menu.MenuModel):
 
         for entry in self.entries:
             self.register_signal(entry.action)
-        
+            
+    def select_current(self):
+        """ Select the currently highlighted entry. """
+        self.select(self.selected_entry)
+       
     def select(self, selection):
         """ Select the entry at selection. """
         if (selection < 0 or selection > len(self.entries)):
@@ -131,9 +135,6 @@ class MainMenu(menu.MenuView):
         x_pos = x_pos + 3 # The previous string was two lines
         self.stdscr.addstr(x_pos, 0, self.copyright)
 
-    def select_current(self):
-        """ Select the currently highlighted entry. """
-        self.model.select(self.selected_entry)
 
     def handle_input(self, key):
         """ React to keyboard input. """

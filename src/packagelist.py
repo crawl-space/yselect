@@ -79,9 +79,6 @@ class ListView(menu.MenuView):
         self.pad = self.window.derwin(height - 1, width, 1, 0)
         self.pad.bkgd(" ", curses.color_pair(0))
 
-        self.list_model = list_model
-        self.selected_entry = 3
-
         (height, width) = self.pad.getmaxyx()
 
         self.scroll_top = 0
@@ -108,7 +105,8 @@ class ListView(menu.MenuView):
         """ Draw the list on screen. """
         self.window.addstr(0, 0, "EIOM Pri Section  Package      " + \
                 "Inst.ver    Avail.ver   Description")
-        self.__paint_list(self.list_model, 0, 1)
+        self.__adjust_scroll_window()
+        self.__paint_list(self.model, 0, 1)
         self.pad.refresh()
             
     def __get_attribute(self, row):
@@ -117,7 +115,7 @@ class ListView(menu.MenuView):
 
         Return the appropriate curses attribute.
         """
-        if (row == self.selected_entry):
+        if (row == self.model.selected_entry):
             attribute = curses.A_REVERSE
         else:
             attribute = curses.A_NORMAL
@@ -185,37 +183,46 @@ class ListView(menu.MenuView):
             self.available_col_width, self.available_col_width, 
             self.description_col_width, self.description_col_width)
         return format_string
-            
-    def move_up(self):
-        """ Move the selection up one entry. """
-        if (self.selected_entry > 0):
-            self.selected_entry = self.selected_entry - 1
 
-            if (self.selected_entry < self.scroll_top):
-                self.scroll_top = self.scroll_top - 1
-                self.scroll_bottom = self.scroll_bottom - 1
-                
-    def move_down(self):
-        """ Move the selection down one entry. """
-        if (self.selected_entry < self.list_model.length - 1):
-            self.selected_entry = self.selected_entry + 1
+    def __adjust_scroll_window(self):
+        """ 
+        Move the scrolling list window.
+        
+        We only adjust if the model's selected entry is at the bottom or the
+        top of the scroll window.
+        """
+        if (self.model.selected_entry < self.scroll_top):
+            self.scroll_top = self.scroll_top - 1
+            self.scroll_bottom = self.scroll_bottom - 1
 
-            if (self.selected_entry > self.scroll_bottom):
-                self.scroll_top = self.scroll_top + 1
-                self.scroll_bottom = self.scroll_bottom + 1
+        if (self.model.selected_entry > self.scroll_bottom):
+            self.scroll_top = self.scroll_top + 1
+            self.scroll_bottom = self.scroll_bottom + 1
 
 
-class ListModel:
+class ListModel(menu.MenuModel):
 
     """ Model of a list of packages. """
     
     def __init__(self):
+        menu.MenuModel.__init__(self)
+
         self.title = "All Packages"
         self.packages = [DetailsModel(), DetailsModel()]
 
     def add_sub_list(self, sub_list):
         """ Add a sub list to this list. """
         self.packages.append(sub_list)
+            
+    def move_up(self):
+        """ Move the selection up one entry. """
+        if (self.selected_entry > 0):
+            self.selected_entry = self.selected_entry - 1
+                
+    def move_down(self):
+        """ Move the selection down one entry. """
+        if (self.selected_entry < self.length - 1):
+            self.selected_entry = self.selected_entry + 1
 
     def __get_length(self):
         """ Return the length of the list including sublists. """
