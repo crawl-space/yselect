@@ -65,12 +65,12 @@ class PackageView:
             
             self.list_window.handle_input(char)
 
-class ListView(menu.Menu):
+class ListView(menu.MenuView):
 
     """ Displays a list of packages. """
     
     def __init__(self, window, list_model):
-        menu.Menu.__init__(self)
+        menu.MenuView.__init__(self)
         
         self.window = window
         self.window.bkgd(" ", curses.color_pair(2))

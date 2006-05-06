@@ -70,7 +70,7 @@ class MainMenuModel(observable.Observable):
         self.emit_signal(self.entries[selection].action)
 
 
-class MainMenu(menu.Menu):
+class MainMenu(menu.MenuView):
 
     """
     yselect main menu screen.
@@ -78,7 +78,7 @@ class MainMenu(menu.Menu):
 
     def __init__(self, stdscr, program_name, program_version):
 
-        menu.Menu.__init__(self)
+        menu.MenuView.__init__(self)
         self.stdscr = stdscr
 
         self.title = \
@@ -87,15 +87,15 @@ class MainMenu(menu.Menu):
         self.model = MainMenuModel(program_name)
 
         self.entries.append(MenuEntry("update", "[U]pdate",
-            "Update list of available packages, if possible.", None, 'u'))
+            "Update list of available packages, if possible.", 'u'))
         self.entries.append(MenuEntry("select", "[S]elect",
-            "Request which packages you want on your system.", None, 's'))
+            "Request which packages you want on your system.", 's'))
         self.entries.append(MenuEntry("install", "[I]nstall",
-            "Install and upgrade wanted packages.", None, 'i'))
+            "Install and upgrade wanted packages.", 'i'))
         self.entries.append(MenuEntry("remove", "[R]emove",
-            "Remove unwanted software.", None, 'r'))
+            "Remove unwanted software.", 'r'))
         self.entries.append(MenuEntry("quit", "[Q]uit",
-                "Quit %s." % (program_name), None, 'q'))
+                "Quit %s." % (program_name), 'q'))
 
         self.navigation_info = \
             "Move around with ^P and ^N, cursor keys, initial letters, " + \
@@ -150,7 +150,7 @@ class MainMenu(menu.Menu):
     def handle_input(self, key):
         """ React to keyboard input. """
         #Try Super's implementation first.
-        handled = menu.Menu.handle_input(self, key)
+        handled = menu.MenuView.handle_input(self, key)
         if not handled:
             for entry in self.model.entries:
                 if key == ord(entry.shortcut_key):

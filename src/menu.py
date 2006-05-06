@@ -23,7 +23,7 @@ import curses
 
 __revision__ = "$Rev$"
 
-class Menu:
+class MenuView:
     """
     Parent Menu class. Maintains a reference to the currently selected menu entry.
     """
