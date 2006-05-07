@@ -113,9 +113,9 @@ class MainMenuController(menu.MenuController):
         handled = menu.MenuController.handle_input(self, key)
         if not handled:
             for entry in self._model.entries:
-                if key == ord(entry.shortcut_key):
-                    self._model.selected_entry = \
-                        self._model.entries.index(entry)
+                entry_num = self._model.entries.index(entry)
+                if key == ord(entry.shortcut_key) or key == ord(str(entry_num)):
+                    self._model.selected_entry = entry_num
                     handled = True
                     break
 
