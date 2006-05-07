@@ -45,15 +45,19 @@ class MainApplication:
 		"""
 
 		# Start out with the main menu:
-        current_menu = mainmenu.MainMenu(screen, program_name, program_version)
-
-        current_menu.model.add_observer("quit", self)
+        menu_model = mainmenu.MainMenuModel(program_name)
+        menu_model.add_observer("quit", self)
+        
+        menu_view = mainmenu.MainMenuView(screen, menu_model, program_name,
+            program_version)
+        menu_controller = mainmenu.MainMenuController(menu_model)
+        
 
         while not self.do_quit:
-            current_menu.paint()
+            menu_view.paint()
             
             char = screen.getch()
-            current_menu.handle_input(char)
+            menu_controller.handle_input(char)
 
     def notify(self, observable, signal_name):
         """ Respond to changes from user input. """

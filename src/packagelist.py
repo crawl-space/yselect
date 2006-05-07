@@ -42,6 +42,7 @@ class PackageView:
 
         self.list_window = ListView(window.derwin(height - details_height,
             width, 1, 0), list_model)
+        self.list_controller = menu.MenuController(list_model)
         self.details_window = DetailsView(window.derwin(details_height, width,
             height - details_height, 0))
         self.details_window.model = DetailsModel()
@@ -63,7 +64,7 @@ class PackageView:
             if char == ord('q'):
                 break
             
-            self.list_window.handle_input(char)
+            self.list_controller.handle_input(char)
 
 class ListView(menu.MenuView):
 
@@ -106,7 +107,7 @@ class ListView(menu.MenuView):
         self.window.addstr(0, 0, "EIOM Pri Section  Package      " + \
                 "Inst.ver    Avail.ver   Description")
         self.__adjust_scroll_window()
-        self.__paint_list(self.model, 0, 1)
+        self.__paint_list(self._model, 0, 1)
         self.pad.refresh()
             
     def __get_attribute(self, row):
@@ -115,7 +116,7 @@ class ListView(menu.MenuView):
 
         Return the appropriate curses attribute.
         """
-        if (row == self.model.selected_entry):
+        if (row == self._model.selected_entry):
             attribute = curses.A_REVERSE
         else:
             attribute = curses.A_NORMAL
@@ -191,11 +192,11 @@ class ListView(menu.MenuView):
         We only adjust if the model's selected entry is at the bottom or the
         top of the scroll window.
         """
-        if (self.model.selected_entry < self.scroll_top):
+        if (self._model.selected_entry < self.scroll_top):
             self.scroll_top = self.scroll_top - 1
             self.scroll_bottom = self.scroll_bottom - 1
 
-        if (self.model.selected_entry > self.scroll_bottom):
+        if (self._model.selected_entry > self.scroll_bottom):
             self.scroll_top = self.scroll_top + 1
             self.scroll_bottom = self.scroll_bottom + 1
 
@@ -247,35 +248,35 @@ class DetailsView:
         self.details_pad = self.window.derwin(height - 2, 0, 1, 0) 
         self.details_pad.bkgd(" ", curses.color_pair(0))
 
-        self.model = None
+        self._model = None
 
     def paint(self):
         """ Draw the DetailsView on screen. """
         (height, width) = self.window.getmaxyx()
                
-        if self.model:
-            self.window.addstr(0, 0, self.model.name)
+        if self._model:
+            self.window.addstr(0, 0, self._model.name)
             # TODO: Only show this when there is more to display
             self.window.addstr(height - 1, 0, "press d for more.")
             self.paint_summary()
 
     def paint_summary(self):
         """ Draw the package details summary line. """
-        self.details_pad.addstr(0, 0, "%s - %s" % (self.model.name,
-            self.model.summary), curses.A_BOLD)
-        self.details_pad.addstr(2, 0, self.model.description)
+        self.details_pad.addstr(0, 0, "%s - %s" % (self._model.name,
+            self._model.summary), curses.A_BOLD)
+        self.details_pad.addstr(2, 0, self._model.description)
 
     def paint_full(self):
         """ Draw the package's full details. """
-        self.details_pad.addstr(0, 0, "Name: %s" % self.model.name)
+        self.details_pad.addstr(0, 0, "Name: %s" % self._model.name)
         self.details_pad.addstr(1, 0,
-            "Version: %s" % self.model.version)
+            "Version: %s" % self._model.version)
         self.details_pad.addstr(2, 0,
-            "Release: %s" % self.model.release)
+            "Release: %s" % self._model.release)
         self.details_pad.addstr(3, 0,
-            "Architecture: %s" % self.model.arch)
+            "Architecture: %s" % self._model.arch)
         self.details_pad.addstr(4, 0,
-            "Details: %s" % self.model.description)
+            "Details: %s" % self._model.description)
 
 
 class DetailsModel:

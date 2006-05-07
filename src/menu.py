@@ -29,32 +29,14 @@ class MenuModel:
 
     def __init__(self):
         self.selected_entry = 0
-        self.entries = []
-        pass
 
     def move_up(self):
-        """
-        Move the menu cursor up one entry.
-
-        We only move up if we're not already at the top of the list.
-        If we are, we wrap to the bottom.
-        """
-        if self.selected_entry > 0:
-            self.selected_entry = self.selected_entry - 1
-        else:
-            self.selected_entry = len(self.entries) - 1
+        """ Move the menu cursor up one entry. """
+        raise NotImplementedError
 
     def move_down(self):
-        """
-        Move the menu cursor down an entry.
-
-        We only move if we're not already at the bottom of the list.
-        If we are, we wrap to the top.
-        """
-        if self.selected_entry < len(self.entries) - 1:
-            self.selected_entry = self.selected_entry + 1
-        else:
-            self.selected_entry = 0
+        """ Move the menu cursor down an entry. """
+        raise NotImplementedError
 
     def select_current(self):
         """
@@ -72,28 +54,7 @@ class MenuView:
     """
 
     def __init__(self, model):
-        self.model = model
-
-    def handle_input(self, char):
-        """ React to the provided input. """
-
-        handled = True
-        
-        # 16 is CTRL+p
-        if char == curses.KEY_UP or char == ord('k') or char == 16:
-            self.model.move_up()
-        # 14 is CTRL+n    
-        elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
-            self.model.move_down()
-        # 10 is another 'ENTER' or return key or whatever. I needed it for my
-        # keyboard.
-        elif char == curses.KEY_ENTER or char == 10:
-            self.model.select_current()
-        else:
-            # We didn't handle the input.
-            handled = False
-
-        return handled
+        self._model = model
 
     def paint(self):
         """
@@ -107,8 +68,7 @@ class MenuController:
     """ Parent Menu Controller Class. """
    
     def __init__(self, model):
-        self.__model = model
-        pass
+        self._model = model
    
     def handle_input(self, char):
         """ React to the provided input. """
@@ -117,14 +77,14 @@ class MenuController:
         
         # 16 is CTRL+p
         if char == curses.KEY_UP or char == ord('k') or char == 16:
-            self.__model.move_up()
+            self._model.move_up()
         # 14 is CTRL+n    
         elif char == curses.KEY_DOWN or char == ord('j') or char == 14:
-            self.__model.move_down()
+            self._model.move_down()
         # 10 is another 'ENTER' or return key or whatever. I needed it for my
         # keyboard.
         elif char == curses.KEY_ENTER or char == 10:
-            self.__model.select_current()
+            self._model.select_current()
         else:
             # We didn't handle the input.
             handled = False

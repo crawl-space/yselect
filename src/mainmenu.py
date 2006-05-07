@@ -49,6 +49,7 @@ class MainMenuModel(observable.Observable, menu.MenuModel):
         observable.Observable.__init__(self)
         menu.MenuModel.__init__(self)
 
+        self.entries = []
         self.entries.append(MenuEntry("update", "[U]pdate",
             "Update list of available packages, if possible.", 'u'))
         self.entries.append(MenuEntry("select", "[S]elect",
@@ -62,7 +63,31 @@ class MainMenuModel(observable.Observable, menu.MenuModel):
 
         for entry in self.entries:
             self.register_signal(entry.action)
-            
+
+    def move_up(self):
+        """
+        Move the menu cursor up one entry.
+
+        We only move up if we're not already at the top of the list.
+        If we are, we wrap to the bottom.
+        """
+        if self.selected_entry > 0:
+            self.selected_entry = self.selected_entry - 1
+        else:
+            self.selected_entry = len(self.entries) - 1
+
+    def move_down(self):
+        """
+        Move the menu cursor down an entry.
+
+        We only move if we're not already at the bottom of the list.
+        If we are, we wrap to the top.
+        """
+        if self.selected_entry < len(self.entries) - 1:
+            self.selected_entry = self.selected_entry + 1
+        else:
+            self.selected_entry = 0
+           
     def select_current(self):
         """ Select the currently highlighted entry. """
         self.select(self.selected_entry)
@@ -73,16 +98,39 @@ class MainMenuModel(observable.Observable, menu.MenuModel):
             raise IndexError
         self.emit_signal(self.entries[selection].action)
 
+class MainMenuController(menu.MenuController):
 
-class MainMenu(menu.MenuView):
+    """
+    yselect main menu input handler.
+    """
+
+    def __init__(self, model):
+        menu.MenuController.__init__(self, model)
+
+    def handle_input(self, key):
+        """ React to keyboard input. """
+        #Try Super's implementation first.
+        handled = menu.MenuController.handle_input(self, key)
+        if not handled:
+            for entry in self._model.entries:
+                if key == ord(entry.shortcut_key):
+                    self._model.selected_entry = \
+                        self._model.entries.index(entry)
+                    handled = True
+                    break
+
+        return handled
+
+
+class MainMenuView(menu.MenuView):
 
     """
     yselect main menu screen.
     """
 
-    def __init__(self, stdscr, program_name, program_version):
+    def __init__(self, stdscr, menu_model, program_name, program_version):
 
-        menu.MenuView.__init__(self, MainMenuModel(program_name))
+        menu.MenuView.__init__(self, menu_model)
         self.stdscr = stdscr
 
         self.title = \
@@ -114,9 +162,9 @@ class MainMenu(menu.MenuView):
 
         x_pos = 2
         i = 0
-        for menu_entry in self.model.entries:
+        for menu_entry in self._model.entries:
 
-            if menu_entry == self.model.entries[self.model.selected_entry]:
+            if menu_entry == self._model.entries[self._model.selected_entry]:
                 prefix = " * "
                 format = curses.A_REVERSE
             else:
@@ -134,17 +182,3 @@ class MainMenu(menu.MenuView):
 
         x_pos = x_pos + 3 # The previous string was two lines
         self.stdscr.addstr(x_pos, 0, self.copyright)
-
-
-    def handle_input(self, key):
-        """ React to keyboard input. """
-        #Try Super's implementation first.
-        handled = menu.MenuView.handle_input(self, key)
-        if not handled:
-            for entry in self.model.entries:
-                if key == ord(entry.shortcut_key):
-                    self.model.selected_entry = self.model.entries.index(entry)
-                    handled = True
-                    break
-
-        return handled
