@@ -51,6 +51,33 @@ class MainMenuModelTests(unittest.TestCase):
         except:
             self.fail()
 
+    def testSignals(self):
+        observer = TestObserver()
+        self.model.add_observer("quit", observer)
+        self.model.add_observer("select", observer)
+        
+        self.model.emit_signal("quit")
+        self.assertTrue(observer.been_notified)
+        self.assertEquals("quit", observer.notified_signal)
+        observer.reset()
+
+        self.model.emit_signal("select")
+        self.assertTrue(observer.been_notified)
+        self.assertEquals("select", observer.notified_signal)
+
+class TestObserver:
+
+    def __init__(self):
+        self.been_notified = False
+        self.notified_signal = None
+
+    def notify(self, observable, signal_name):
+        self.been_notified = True
+        self.notified_signal = signal_name
+
+    def reset(self):
+        self.been_notified = False
+        self.notified_signal = None
 
 def suite():
     return unittest.makeSuite(MainMenuModelTests)

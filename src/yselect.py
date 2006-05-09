@@ -24,6 +24,7 @@ Yselect program.
 import curses.wrapper
 
 import mainmenu
+import packagelist
 
 __revision__ = "$Rev$"
 
@@ -36,10 +37,11 @@ class MainApplication:
     Application driver class.
     """
 
-    def __init__(self):
+    def __init__(self, screen):
+        self.screen = screen
         self.do_quit = False
 
-    def run(self, screen):
+    def run(self):
         """
 		The main event loop for the application.
 		"""
@@ -47,22 +49,30 @@ class MainApplication:
 		# Start out with the main menu:
         menu_model = mainmenu.MainMenuModel(program_name)
         menu_model.add_observer("quit", self)
+        menu_model.add_observer("select", self)
         
-        menu_view = mainmenu.MainMenuView(screen, menu_model, program_name,
+        menu_view = mainmenu.MainMenuView(self.screen, menu_model, program_name,
             program_version)
         menu_controller = mainmenu.MainMenuController(menu_model)
-        
+       
+        self.view = menu_view
+        self.controller = menu_controller
 
         while not self.do_quit:
-            menu_view.paint()
+            self.view.paint()
             
-            char = screen.getch()
-            menu_controller.handle_input(char)
+            char = self.screen.getch()
+            self.controller.handle_input(char)
 
     def notify(self, observable, signal_name):
         """ Respond to changes from user input. """
         if signal_name == "quit":
             self.do_quit = True
+        elif signal_name == "select":
+            self.screen.clear()
+            
+            self.view = packagelist.PackageView(self.screen)
+            self.controller = self.view.package_controller
         else:
             assert False, \
                 "Recieved a notification for a signal we didn't know about."
@@ -70,8 +80,11 @@ class MainApplication:
 
 def main(screen):
     """ Main yselect function. """
-    yselect = MainApplication()
-    yselect.run(screen)
+    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
+    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLUE)
+
+    yselect = MainApplication(screen)
+    yselect.run()
 
 if __name__ == "__main__":
     try:

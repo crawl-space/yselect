@@ -40,31 +40,41 @@ class PackageView:
 
         details_height = (height - 1) / 2
 
-        self.list_window = ListView(window.derwin(height - details_height,
+        self.list_view = ListView(window.derwin(height - details_height,
             width, 1, 0), list_model)
-        self.list_controller = menu.MenuController(list_model)
-        self.details_window = DetailsView(window.derwin(details_height, width,
+        list_controller = menu.MenuController(list_model)
+
+        # TODO: Figure out a way to make the view ignorant of the controller
+        self.package_controller = PackageController(list_controller)
+        self.details_view = DetailsView(window.derwin(details_height, width,
             height - details_height, 0))
-        self.details_window.model = DetailsModel()
+        self.details_view.model = DetailsModel()
 
     def paint(self):
         """ Draw the package view onscreen. """
-        self.list_window.paint()
-        self.details_window.paint()
+        self.list_view.paint()
+        self.details_view.paint()
 
         self.window.addstr(0, 0, 
             "yselect - inspection of package states (avail., priority)")
 
-    def run(self):
-        """ Run the package view main loop. """
-        while True:
-            self.paint()
-            char = self.window.getch()
 
-            if char == ord('q'):
-                break
-            
-            self.list_controller.handle_input(char)
+class PackageController:
+
+    """ Controller for package selection. """
+
+    def __init__(self, list_controller):
+        self._list_controller = list_controller
+        pass
+
+    def handle_input(self, key):
+        """
+        Respond to key presses.
+
+        The list controller handles input first.
+        """
+        return self._list_controller.handle_input(key)
+
 
 class ListView(menu.MenuView):
 
@@ -248,35 +258,35 @@ class DetailsView:
         self.details_pad = self.window.derwin(height - 2, 0, 1, 0) 
         self.details_pad.bkgd(" ", curses.color_pair(0))
 
-        self._model = None
+        self.model = None
 
     def paint(self):
         """ Draw the DetailsView on screen. """
         (height, width) = self.window.getmaxyx()
                
-        if self._model:
-            self.window.addstr(0, 0, self._model.name)
+        if self.model:
+            self.window.addstr(0, 0, self.model.name)
             # TODO: Only show this when there is more to display
             self.window.addstr(height - 1, 0, "press d for more.")
             self.paint_summary()
 
     def paint_summary(self):
         """ Draw the package details summary line. """
-        self.details_pad.addstr(0, 0, "%s - %s" % (self._model.name,
-            self._model.summary), curses.A_BOLD)
-        self.details_pad.addstr(2, 0, self._model.description)
+        self.details_pad.addstr(0, 0, "%s - %s" % (self.model.name,
+            self.model.summary), curses.A_BOLD)
+        self.details_pad.addstr(2, 0, self.model.description)
 
     def paint_full(self):
         """ Draw the package's full details. """
-        self.details_pad.addstr(0, 0, "Name: %s" % self._model.name)
+        self.details_pad.addstr(0, 0, "Name: %s" % self.model.name)
         self.details_pad.addstr(1, 0,
-            "Version: %s" % self._model.version)
+            "Version: %s" % self.model.version)
         self.details_pad.addstr(2, 0,
-            "Release: %s" % self._model.release)
+            "Release: %s" % self.model.release)
         self.details_pad.addstr(3, 0,
-            "Architecture: %s" % self._model.arch)
+            "Architecture: %s" % self.model.arch)
         self.details_pad.addstr(4, 0,
-            "Details: %s" % self._model.description)
+            "Details: %s" % self.model.description)
 
 
 class DetailsModel:
@@ -300,6 +310,15 @@ def main(window):
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLUE)
     package_view = PackageView(window)
-    package_view.run()
+    package_controller = package_view.package_controller
 
-curses.wrapper(main)
+    while True:
+        package_view.paint()
+        char = window.getch()
+
+        if char == ord('q'):
+            break
+            
+        package_controller.handle_input(char)
+
+#curses.wrapper(main)
