@@ -175,8 +175,8 @@ class ListView(menu.MenuView):
         """ Draw a package line in the menu. """
         format_string = self.__make_package_format_string() 
         pkg_string = format_string % \
-            ("", "", package.section, package.name, package.version,
-            package.avail_version, package.summary)
+            (package.eiom, package.priority, package.section, package.name,
+            package.version, package.avail_version, package.summary)
         attribute = self.__get_attribute(cur_y)
         self.pad.addstr(cur_y - self.scroll_top, 0, pkg_string, attribute)
        
@@ -300,25 +300,8 @@ class DetailsModel:
         self.release = "4"
         self.avail_version = "1.2.45"
         self.avail_release = "5"
+        self.eiom = "  _*"
+        self.priority = "Required"
         self.arch = "i386"
         self.summary = "the jozzlebazzer phanf."
         self.description = "Jozzlebaz\nflark! phanf."
-
-
-def main(window):
-    """ Run the package list. """
-    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
-    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLUE)
-    package_view = PackageView(window)
-    package_controller = package_view.package_controller
-
-    while True:
-        package_view.paint()
-        char = window.getch()
-
-        if char == ord('q'):
-            break
-            
-        package_controller.handle_input(char)
-
-#curses.wrapper(main)
