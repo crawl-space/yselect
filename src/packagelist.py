@@ -73,7 +73,13 @@ class PackageController:
 
         The list controller handles input first.
         """
-        return self._list_controller.handle_input(key)
+
+        if key == ord('x'):
+            import sys
+            sys.exit(0)
+            return True
+        else:
+            return self._list_controller.handle_input(key)
 
 
 class ListView(menu.MenuView):
