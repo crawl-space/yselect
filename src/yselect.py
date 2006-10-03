@@ -23,6 +23,7 @@ Yselect program.
 
 import curses.wrapper
 
+import menu
 import mainmenu
 import packagelist
 
@@ -70,9 +71,15 @@ class MainApplication:
             self.do_quit = True
         elif signal_name == "select":
             self.screen.clear()
-            
-            self.view = packagelist.PackageView(self.screen)
-            self.controller = self.view.package_controller
+       
+            list_model = packagelist.ListModel()
+            list_model.add_sub_list(packagelist.ListModel())
+           
+            list_controller = menu.MenuController(list_model)
+            package_controller = packagelist.PackageController(list_controller)
+           
+            self.view = packagelist.PackageView(self.screen, list_model)
+            self.controller = package_controller
         else:
             assert False, \
                 "Recieved a notification for a signal we didn't know about."

@@ -29,23 +29,17 @@ class PackageView:
 
     """ Window for displaying the package list and details. """
     
-    def __init__(self, window):
+    def __init__(self, window, list_model):
         self.window = window
         self.window.bkgd(" ", curses.color_pair(1))
         
         (height, width) = self.window.getmaxyx()
 
-        list_model = ListModel()
-        list_model.add_sub_list(ListModel())
-
         details_height = (height - 1) / 2
 
         self.list_view = ListView(window.derwin(height - details_height,
             width, 1, 0), list_model)
-        list_controller = menu.MenuController(list_model)
 
-        # TODO: Figure out a way to make the view ignorant of the controller
-        self.package_controller = PackageController(list_controller)
         self.details_view = DetailsView(window.derwin(details_height, width,
             height - details_height, 0))
         self.details_view.model = DetailsModel()
