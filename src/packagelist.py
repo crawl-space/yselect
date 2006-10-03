@@ -65,7 +65,6 @@ class PackageController:
 
     def __init__(self, list_controller):
         self._list_controller = list_controller
-        pass
 
     def handle_input(self, key):
         """
