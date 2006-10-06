@@ -22,6 +22,7 @@
 import curses
 
 import menu
+import observable
 
 __revision__ = "$Rev$"
 
@@ -40,9 +41,11 @@ class PackageView:
         self.list_view = ListView(window.derwin(height - details_height,
             width, 1, 0), list_model)
 
+        list_model.add_observer("selection-changed", self)
+        
         self.details_view = DetailsView(window.derwin(details_height, width,
             height - details_height, 0))
-        self.details_view.model = DetailsModel()
+        self.details_view.model = list_model.selected
 
     def paint(self):
         """ Draw the package view onscreen. """
@@ -52,7 +55,11 @@ class PackageView:
         self.window.addstr(0, 0, 
             "yselect - inspection of package states (avail., priority)")
 
+    def notify(self, notifier, signal):
+        if signal == "selection-changed":
+            self.details_view.model = notifier.selected
 
+        
 class PackageController:
 
     """ Controller for package selection. """
@@ -210,14 +217,18 @@ class ListView(menu.MenuView):
             self.scroll_bottom = self.scroll_bottom + 1
 
 
-class ListModel(menu.MenuModel):
+class ListModel(menu.MenuModel, observable.Observable):
 
     """ Model of a list of packages. """
     
     def __init__(self):
         menu.MenuModel.__init__(self)
+        observable.Observable.__init__(self)
 
+        self.register_signal("selection-changed")
+                
         self.title = "All Packages"
+        self.name = self.title
         self.packages = [DetailsModel(), DetailsModel()]
 
     def add_sub_list(self, sub_list):
@@ -228,12 +239,14 @@ class ListModel(menu.MenuModel):
         """ Move the selection up one entry. """
         if (self.selected_entry > 0):
             self.selected_entry = self.selected_entry - 1
+        self.emit_signal("selection-changed")
                 
     def move_down(self):
         """ Move the selection down one entry. """
         if (self.selected_entry < self.length - 1):
             self.selected_entry = self.selected_entry + 1
-
+        self.emit_signal("selection-changed")
+    
     def __get_length(self):
         """ Return the length of the list including sublists. """
         length = 1 # Include the title.
@@ -245,6 +258,11 @@ class ListModel(menu.MenuModel):
         return length
 
     length = property(__get_length)
+
+    def __get_selected(self):
+        return self.packages[self.selected_entry]
+
+    selected = property(__get_selected)
                 
 class DetailsView:
 
@@ -263,11 +281,17 @@ class DetailsView:
         """ Draw the DetailsView on screen. """
         (height, width) = self.window.getmaxyx()
                
+        self.window.clear()
+        self.details_pad.clear()
+        
         if self.model:
             self.window.addstr(0, 0, self.model.name)
             # TODO: Only show this when there is more to display
             self.window.addstr(height - 1, 0, "press d for more.")
-            self.paint_summary()
+            if type(self.model) == DetailsModel:
+                self.paint_summary()
+            else:
+                print "BARRRR"
 
     def paint_summary(self):
         """ Draw the package details summary line. """
@@ -288,7 +312,7 @@ class DetailsView:
             "Details: %s" % self.model.description)
 
 
-class DetailsModel:
+class DetailsModel(object):
 
     """ A model of package details. """
     
