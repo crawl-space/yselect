@@ -57,11 +57,8 @@ class ObservableTests(unittest.TestCase):
 
     def testAddObserverNoSignal(self):
         observer = TestObserver()
-        try:
-            self.observable.add_observer("blonk", observer)
-            self.fail()
-        except observable.NoSuchSignalException:
-            pass
+        self.assertRaises(observable.NoSuchSignalException,
+            self.observable.add_observer, "blonk", observer)
 
     def testEmitSignal(self):
         observer = TestObserver()
@@ -82,6 +79,9 @@ class ObservableTests(unittest.TestCase):
        self.observable.emit_signal("bark")
        self.assertTrue(observer.been_notified)
 
+    def testEmitBadSignal(self):
+       self.assertRaises(observable.NoSuchSignalException,
+           self.observable.emit_signal, "meow")
 
 class TestObservable(observable.Observable):
     

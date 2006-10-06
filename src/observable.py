@@ -51,6 +51,8 @@ class Observable:
 
     def emit_signal(self, signal_name):
         """ Emit the signal identified by signal_name. """
+        if not self.signals.has_key(signal_name):
+            raise NoSuchSignalException
         observers = self.signals[signal_name]
         for observer in observers:
             observer.notify(self, signal_name)
