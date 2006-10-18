@@ -328,3 +328,6 @@ class DetailsModel(object):
         self.arch = "i386"
         self.summary = "the jozzlebazzer phanf."
         self.description = "Jozzlebaz\nflark! phanf."
+
+        self.installed = True
+        self.action = 'INSTALL'
