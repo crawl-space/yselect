@@ -217,6 +217,24 @@ class ListView(menu.MenuView):
             self.scroll_bottom = self.scroll_bottom + 1
 
 
+class ListController(menu.MenuController):
+    
+    def __init__(self, model):
+        menu.MenuController.__init__(self, model)
+
+    def handle_input(self, key):
+        """ React to keyboard input. """
+        #Try Super's implementation first.
+        handled = menu.MenuController.handle_input(self, key)
+        if not handled:
+            if key == ord('-') or key == ord('_'):
+                handled = True
+            elif key == ord('+'):
+                handled = True
+
+        return handled
+
+
 class ListModel(menu.MenuModel, observable.Observable):
 
     """ Model of a list of packages. """

@@ -75,7 +75,7 @@ class MainApplication:
             list_model = packagelist.ListModel()
             list_model.add_sub_list(packagelist.ListModel())
            
-            list_controller = menu.MenuController(list_model)
+            list_controller = packagelist.ListController(list_model)
             package_controller = packagelist.PackageController(list_controller)
            
             self.view = packagelist.PackageView(self.screen, list_model)
