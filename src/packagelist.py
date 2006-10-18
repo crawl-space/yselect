@@ -228,8 +228,10 @@ class ListController(menu.MenuController):
         handled = menu.MenuController.handle_input(self, key)
         if not handled:
             if key == ord('-') or key == ord('_'):
+                self._model.selected.action = 'REMOVE'
                 handled = True
             elif key == ord('+'):
+                self._model.selected.action = 'INSTALL'
                 handled = True
 
         return handled
