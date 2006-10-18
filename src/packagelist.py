@@ -323,7 +323,7 @@ class DetailsModel(object):
         self.release = "4"
         self.avail_version = "1.2.45"
         self.avail_release = "5"
-        self.eiom = "  _*"
+#        self.eiom = "  _*"
         self.priority = "Required"
         self.arch = "i386"
         self.summary = "the jozzlebazzer phanf."
@@ -331,3 +331,19 @@ class DetailsModel(object):
 
         self.installed = True
         self.action = 'INSTALL'
+
+    def __get_eiom(self):
+        eiom = " "
+        if self.installed:
+            eiom = eiom + "*" + "*"
+        else:
+            eiom = eiom + " " + " "
+
+        if self.action == 'INSTALL':
+            eiom = eiom + "*"
+        else:
+            eiom = eiom + "_"
+
+        return eiom
+
+    eiom = property(__get_eiom)
