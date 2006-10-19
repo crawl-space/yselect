@@ -105,12 +105,12 @@ class MainMenuController(menu.MenuController):
     """
 
     def __init__(self, model):
-        menu.MenuController.__init__(self, model)
+        super(MainMenuController, self).__init__(model)
 
     def handle_input(self, key):
         """ React to keyboard input. """
         #Try Super's implementation first.
-        handled = menu.MenuController.handle_input(self, key)
+        handled = super(MainMenuController, self).handle_input(key)
         if not handled:
             for entry in self._model.entries:
                 entry_num = self._model.entries.index(entry)
@@ -130,7 +130,7 @@ class MainMenuView(menu.MenuView):
 
     def __init__(self, stdscr, menu_model, program_name, program_version):
 
-        menu.MenuView.__init__(self, menu_model)
+        super(MainMenuView, self).__init__(menu_model)
         self.stdscr = stdscr
 
         self.title = \

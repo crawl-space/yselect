@@ -89,7 +89,7 @@ class ListView(menu.MenuView):
     """ Displays a list of packages. """
     
     def __init__(self, window, list_model):
-        menu.MenuView.__init__(self, list_model)
+        super(ListView, self).__init__(list_model)
         
         self.window = window
         self.window.bkgd(" ", curses.color_pair(2))
@@ -222,12 +222,12 @@ class ListView(menu.MenuView):
 class ListController(menu.MenuController):
     
     def __init__(self, model):
-        menu.MenuController.__init__(self, model)
+        super(ListController, self).__init__(model)
 
     def handle_input(self, key):
         """ React to keyboard input. """
         #Try Super's implementation first.
-        handled = menu.MenuController.handle_input(self, key)
+        handled = super(ListController, self).handle_input(key)
         if not handled:
             if key == ord('-') or key == ord('_'):
                 self._model.selected.action = 'REMOVE'
@@ -347,7 +347,6 @@ class DetailsModel(object):
         self.release = "4"
         self.avail_version = "1.2.45"
         self.avail_release = "5"
-#        self.eiom = "  _*"
         self.priority = "Required"
         self.arch = "i386"
         self.summary = "the jozzlebazzer phanf."
