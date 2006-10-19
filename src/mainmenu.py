@@ -182,3 +182,5 @@ class MainMenuView(menu.MenuView):
 
         x_pos = x_pos + 3 # The previous string was two lines
         self.stdscr.addstr(x_pos, 0, self.copyright)
+
+        self.stdscr.refresh()

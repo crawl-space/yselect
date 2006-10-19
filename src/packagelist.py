@@ -55,6 +55,8 @@ class PackageView:
         self.window.addstr(0, 0, 
             "yselect - inspection of package states (avail., priority)")
 
+        self.window.refresh()
+
     def notify(self, notifier, signal):
         if signal == "selection-changed":
             self.details_view.model = notifier.selected
@@ -246,7 +248,8 @@ class ListModel(menu.MenuModel, observable.Observable):
         observable.Observable.__init__(self)
 
         self.register_signal("selection-changed")
-                
+               
+        self.selected_entry = 1
         self.title = "All Packages"
         self.name = self.title
         self.packages = [DetailsModel(), DetailsModel()]
@@ -280,7 +283,7 @@ class ListModel(menu.MenuModel, observable.Observable):
     length = property(__get_length)
 
     def __get_selected(self):
-        return self.packages[self.selected_entry]
+        return self.packages[self.selected_entry - 1]
 
     selected = property(__get_selected)
                 
@@ -303,15 +306,16 @@ class DetailsView:
                
         self.window.clear()
         self.details_pad.clear()
-        
+
         if self.model:
             self.window.addstr(0, 0, self.model.name)
             # TODO: Only show this when there is more to display
             self.window.addstr(height - 1, 0, "press d for more.")
             if type(self.model) == DetailsModel:
                 self.paint_summary()
-            else:
-                print "BARRRR"
+
+        self.details_pad.refresh()
+        self.window.refresh()
 
     def paint_summary(self):
         """ Draw the package details summary line. """
