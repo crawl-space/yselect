@@ -26,7 +26,7 @@ import observable
 
 __revision__ = "$Rev$"
 
-class MenuEntry:
+class MenuEntry(object):
 
     """
     Object representation of a menu entry.

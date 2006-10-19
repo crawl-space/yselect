@@ -23,7 +23,7 @@ Base class implementing observer pattern.
 
 __revision__ = "$Rev$"
 
-class Observable:
+class Observable(object):
 
     """Abstract class for objects implementing the 'Pub' of 'Pub/Sub. """
     

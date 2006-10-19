@@ -26,7 +26,7 @@ import observable
 
 __revision__ = "$Rev$"
 
-class PackageView:
+class PackageView(object):
 
     """ Window for displaying the package list and details. """
     
@@ -62,7 +62,7 @@ class PackageView:
             self.details_view.model = notifier.selected
 
         
-class PackageController:
+class PackageController(object):
 
     """ Controller for package selection. """
 
@@ -287,7 +287,7 @@ class ListModel(menu.MenuModel, observable.Observable):
 
     selected = property(__get_selected)
                 
-class DetailsView:
+class DetailsView(object):
 
     """ Class for displaying package details. """
     

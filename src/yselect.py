@@ -32,7 +32,7 @@ __revision__ = "$Rev$"
 program_name = "yselect"
 program_version = "0.0.1"
 
-class MainApplication:
+class MainApplication(object):
 
     """
     Application driver class.

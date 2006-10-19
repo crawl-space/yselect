@@ -23,7 +23,7 @@ import curses
 
 __revision__ = "$Rev$"
 
-class MenuModel:
+class MenuModel(object):
     
     """ Abstract menu model class. """
 
@@ -45,7 +45,7 @@ class MenuModel:
         raise NotImplementedError
 
 
-class MenuView:
+class MenuView(object):
 
     """
     Parent Menu view class. 
@@ -63,7 +63,7 @@ class MenuView:
         raise NotImplementedError
 
 
-class MenuController:
+class MenuController(object):
 
     """ Parent Menu Controller Class. """
    
