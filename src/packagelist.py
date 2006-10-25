@@ -285,7 +285,8 @@ class ListModel(menu.MenuModel, observable.Observable):
         return self.packages[self.selected_entry - 1]
 
     selected = property(__get_selected)
-                
+
+
 class DetailsView(object):
 
     """ Class for displaying package details. """

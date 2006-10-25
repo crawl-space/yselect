@@ -28,6 +28,7 @@ from optparse import OptionParser
 import menu
 import mainmenu
 import packagelist
+import yumlistmodel
 
 __revision__ = "$Rev$"
 
@@ -74,7 +75,8 @@ class MainApplication(object):
         elif signal_name == "select":
             self.screen.clear()
        
-            list_model = packagelist.ListModel()
+            list_model = yumlistmodel.ListModel()
+            #list_model = packagelist.ListModel()
             #list_model.add_sub_list(packagelist.ListModel())
            
             list_controller = packagelist.ListController(list_model)
