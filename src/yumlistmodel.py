@@ -55,7 +55,7 @@ class ListModel(menu.MenuModel, observable.Observable):
     length = property(__get_length)
 
     def __get_selected(self):
-        return DetailsModel(self.packages[self.selected_entry - 1])
+        return self.packages[self.selected_entry - 1]
 
     selected = property(__get_selected)
 
@@ -67,15 +67,16 @@ class DetailsModel(object):
     def __init__(self, pkg):
         self.pkg = pkg
 
-        self.version = "1.2.45"
-        self.section = "System/Base"
-        self.release = "4"
+        self.name = pkg.name
+        self.version = pkg.version
+        self.section = pkg.returnSimple("group")
+        self.release = pkg.release
         self.avail_version = "1.2.45"
         self.avail_release = "5"
         self.priority = "Required"
-        self.arch = "i386"
+        self.arch = pkg.arch
         self.summary = pkg.returnSimple('summary')
-        self.description = "Jozzlebaz\nflark! phanf."
+        self.description = pkg.returnSimple('description')
 
         self.installed = True
         self.action = 'INSTALL'
@@ -95,6 +96,3 @@ class DetailsModel(object):
         return eiom
 
     eiom = property(__get_eiom)
-
-    def __getattr__(self, x):
-        return getattr(self.pkg, x)
