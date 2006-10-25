@@ -23,6 +23,8 @@ Yselect program.
 
 import curses.wrapper
 
+from optparse import OptionParser
+
 import menu
 import mainmenu
 import packagelist
@@ -73,7 +75,7 @@ class MainApplication(object):
             self.screen.clear()
        
             list_model = packagelist.ListModel()
-            list_model.add_sub_list(packagelist.ListModel())
+            #list_model.add_sub_list(packagelist.ListModel())
            
             list_controller = packagelist.ListController(list_model)
             package_controller = packagelist.PackageController(list_controller)
@@ -94,6 +96,9 @@ def main(screen):
     yselect.run()
 
 if __name__ == "__main__":
+    opt_parser = OptionParser(version = program_version)
+    opt_parser.parse_args()
+
     try:
         curses.wrapper(main)
     except KeyboardInterrupt:

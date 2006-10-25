@@ -249,7 +249,6 @@ class ListModel(menu.MenuModel, observable.Observable):
 
         self.register_signal("selection-changed")
                
-        self.selected_entry = 1
         self.title = "All Packages"
         self.name = self.title
         self.packages = [DetailsModel(), DetailsModel()]
