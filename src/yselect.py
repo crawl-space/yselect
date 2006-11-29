@@ -21,6 +21,7 @@
 Yselect program.
 """
 
+import sys
 import curses.wrapper
 
 from optparse import OptionParser
@@ -102,6 +103,8 @@ if __name__ == "__main__":
     opt_parser.parse_args()
 
     try:
+        sys.stdout = open('/dev/null', 'w')
+        sys.stderr = open('/dev/null', 'w')
         curses.wrapper(main)
     except KeyboardInterrupt:
         # We don't want to complain on ctrl-c
