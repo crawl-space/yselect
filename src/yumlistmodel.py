@@ -17,14 +17,32 @@ class ListModel(menu.MenuModel, observable.Observable):
         self.name = self.title
 
         yum_base = yum.YumBase()
-
+        
         yum_base.doConfigSetup()
+        yum_base.closeRpmDB()
+        yum_base.doTsSetup()
+        yum_base.doRpmDBSetup()
         yum_base.doRepoSetup()
+        yum_base.doSackSetup()
 
         yum_base.repos.populateSack()
         self.packages = []
-        for pkg in yum_base.repos.pkgSack.returnPackages():
-            self.packages.append(DetailsModel(pkg))
+ 
+        for po in yum_base.pkgSack.returnNewestByNameArch():
+            if self.simpleDBInstalled(yum_base, po.returnSimple('name')):
+                continue
+            self.packages.append(DetailsModel(po, False))
+        for po in yum_base.rpmdb.returnPackages():
+            self.packages.append(DetailsModel(po, True))
+
+    def simpleDBInstalled(self, yum_base, name):
+        # From pirut.
+        # FIXME: doing this directly instead of using self.rpmdb.installed()
+        # speeds things up by 400%
+        mi = yum_base.ts.ts.dbMatch('name', name)
+        if mi.count() > 0:
+            return True
+        return False
 
     def add_sub_list(self, sub_list):
         """ Add a sub list to this list. """
@@ -64,7 +82,7 @@ class DetailsModel(object):
 
     """ A model of package details. """
     
-    def __init__(self, pkg):
+    def __init__(self, pkg, installed):
         self.pkg = pkg
 
         self.name = pkg.name
@@ -78,15 +96,18 @@ class DetailsModel(object):
         self.summary = pkg.returnSimple('summary')
         self.description = pkg.returnSimple('description')
 
-        self.installed = True
-        self.action = 'INSTALL'
+        self.installed = installed
+        if self.installed:
+            self.action = 'INSTALL'
+        else:
+            self.action = 'REMOVE'
 
     def __get_eiom(self):
         eiom = " "
         if self.installed:
             eiom = eiom + "*" + "*"
         else:
-            eiom = eiom + " " + " "
+            eiom = eiom + " " + "_"
 
         if self.action == 'INSTALL':
             eiom = eiom + "*"

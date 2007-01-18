@@ -144,7 +144,7 @@ class MainMenuView(menu.MenuView):
         self.copyright = \
             "Version %s (noarch).\n" + \
             "Copyright (C) 2006 Devan Goodwin.\n" + \
-            "Copyright (C) 2006 James Bowes.\n" + \
+            "Copyright (C) 2006, 2007 James Bowes.\n" + \
             "This is free software; see the GNU General Public Licence " + \
             "version 2\n" + \
             "or later for copying conditions.  There is NO warrenty.  See\n" + \
