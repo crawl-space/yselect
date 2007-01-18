@@ -86,11 +86,11 @@ class DetailsModel(object):
         self.pkg = pkg
 
         self.name = pkg.name
-        self.version = pkg.version
+
+        self.avail_version = pkg.version
+        self.avail_release = pkg.release
+
         self.section = pkg.returnSimple("group")
-        self.release = pkg.release
-        self.avail_version = "1.2.45"
-        self.avail_release = "5"
         self.priority = "Required"
         self.arch = pkg.arch
         self.summary = pkg.returnSimple('summary')
@@ -98,8 +98,12 @@ class DetailsModel(object):
 
         self.installed = installed
         if self.installed:
+            self.version = pkg.version
+            self.release = pkg.release
             self.action = 'INSTALL'
         else:
+            self.version = '<none>'
+            self.release = None
             self.action = 'REMOVE'
 
     def __get_eiom(self):
