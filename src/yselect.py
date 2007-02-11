@@ -1,5 +1,5 @@
 #   yselect - An RPM/Yum package handling frontend.
-#   Copyright (C) 2006 James Bowes <jbowes@redhat.com> 
+#   Copyright (C) 2006, 2007 James Bowes <jbowes@redhat.com>
 #   Copyright (C) 2006 Devan Goodwin <dg@fnordia.org>
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -52,16 +52,7 @@ class MainApplication(object):
 		"""
 
 		# Start out with the main menu:
-        menu_model = mainmenu.MainMenuModel(program_name)
-        menu_model.add_observer("quit", self)
-        menu_model.add_observer("select", self)
-        
-        menu_view = mainmenu.MainMenuView(self.screen, menu_model, program_name,
-            program_version)
-        menu_controller = mainmenu.MainMenuController(menu_model)
-       
-        self.view = menu_view
-        self.controller = menu_controller
+        self.initialize_main_menu()
 
         while not self.do_quit:
             self.view.paint()
@@ -85,9 +76,26 @@ class MainApplication(object):
            
             self.view = packagelist.PackageView(self.screen, list_model)
             self.controller = package_controller
+
+            list_controller.add_observer("return", self)
+        elif signal_name == "return":
+            self.screen.clear()
+            self.initialize_main_menu()
         else:
             assert False, \
                 "Recieved a notification for a signal we didn't know about."
+
+    def initialize_main_menu(self):
+        menu_model = mainmenu.MainMenuModel(program_name)
+        menu_model.add_observer("quit", self)
+        menu_model.add_observer("select", self)
+
+        menu_view = mainmenu.MainMenuView(self.screen, menu_model, program_name,
+            program_version)
+        menu_controller = mainmenu.MainMenuController(menu_model)
+
+        self.view = menu_view
+        self.controller = menu_controller
 
 
 def main(screen):

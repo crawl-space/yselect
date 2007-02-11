@@ -1,5 +1,5 @@
 #   yselect - An RPM/Yum package handling frontend.
-#   Copyright (C) 2006 James Bowes <jbowes@redhat.com> 
+#   Copyright (C) 2006, 2007 James Bowes <jbowes@redhat.com>
 #   Copyright (C) 2006 Devan Goodwin <dg@fnordia.org>
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -75,13 +75,7 @@ class PackageController(object):
 
         The list controller handles input first.
         """
-
-        if key == ord('x'):
-            import sys
-            sys.exit(0)
-            return True
-        else:
-            return self._list_controller.handle_input(key)
+        return self._list_controller.handle_input(key)
 
 
 class ListView(menu.MenuView):
@@ -219,10 +213,13 @@ class ListView(menu.MenuView):
             self.scroll_bottom = self.scroll_bottom + 1
 
 
-class ListController(menu.MenuController):
+class ListController(menu.MenuController, observable.Observable):
     
     def __init__(self, model):
         super(ListController, self).__init__(model)
+        observable.Observable.__init__(self)
+
+        self.register_signal("return")
 
     def handle_input(self, key):
         """ React to keyboard input. """
@@ -234,6 +231,9 @@ class ListController(menu.MenuController):
                 handled = True
             elif key == ord('+'):
                 self._model.selected.action = 'INSTALL'
+                handled = True
+            elif key == ord('x'):
+                self.emit_signal("return")
                 handled = True
 
         return handled

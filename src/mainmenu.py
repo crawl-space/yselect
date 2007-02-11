@@ -1,5 +1,5 @@
 #   yselect - An RPM/Yum package handling frontend.
-#   Copyright (C) 2006 James Bowes <jbowes@redhat.com> 
+#   Copyright (C) 2006, 2007 James Bowes <jbowes@redhat.com>
 #   Copyright (C) 2006 Devan Goodwin <dg@fnordia.org>
 #
 #   This program is free software; you can redistribute it and/or modify
@@ -133,6 +133,7 @@ class MainMenuView(menu.MenuView):
         super(MainMenuView, self).__init__(menu_model)
         self.stdscr = stdscr
 
+        self.stdscr.bkgd(" ", curses.color_pair(0))
         self.title = \
             "RPM/Yum `%s' package handling frontend." % (program_name)
 
