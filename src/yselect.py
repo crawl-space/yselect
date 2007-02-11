@@ -26,7 +26,6 @@ import curses.wrapper
 
 from optparse import OptionParser
 
-import menu
 import mainmenu
 import packagelist
 import yumlistmodel
