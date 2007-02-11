@@ -1,3 +1,11 @@
 * uhm, hook it up to yum?
+  + Register a scheduled removal
+  + "                  " install
+  + "                  " update
+  + Run a test transaction, and present the results to the user
+    - Allow the user to modify the transaction (replace with alts, etc)
+  + Run the real transaction
+* Update fetches the latest stuff from the mirrors
+* Add source configuration ($EDITOR /etc/yum/yum.conf)
 * handle window resizing
   + probably have 'paint' take a screen argument, and draw to that.
