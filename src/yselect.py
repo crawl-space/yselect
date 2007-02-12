@@ -97,7 +97,7 @@ class MainApplication(object):
         self.controller = menu_controller
 
 
-def main(screen):
+def curses_main(screen):
     """ Main yselect function. """
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_RED)
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLUE)
@@ -105,14 +105,44 @@ def main(screen):
     yselect = MainApplication(screen)
     yselect.run()
 
-if __name__ == "__main__":
+def main():
     opt_parser = OptionParser(version = program_version)
-    opt_parser.parse_args()
+    opt_parser.add_option("--licence", action="store_true",
+            help="show program's licence and exit")
+
+    options, args = opt_parser.parse_args()
+
+    if options.licence:
+        print LICENCE
+        sys.exit()
 
     try:
         sys.stdout = open('/dev/null', 'w')
         sys.stderr = open('/dev/null', 'w')
-        curses.wrapper(main)
+        curses.wrapper(curses_main)
     except KeyboardInterrupt:
         # We don't want to complain on ctrl-c
         pass
+
+
+LICENCE = \
+"""
+yselect is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+yselect is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this yselect; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+02110-1301  USA
+"""
+
+
+if __name__ == "__main__":
+    main()
