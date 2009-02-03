@@ -9,3 +9,4 @@
 * Add source configuration ($EDITOR /etc/yum/yum.conf)
 * handle window resizing
   + probably have 'paint' take a screen argument, and draw to that.
+* be awesome at stuff.
